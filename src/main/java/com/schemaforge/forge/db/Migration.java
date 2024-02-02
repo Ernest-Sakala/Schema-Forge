@@ -1,8 +1,11 @@
 package com.schemaforge.forge.db;
 
+import java.util.Map;
+
 public interface Migration {
 
-    void forgeSchema();
+    String forgeSchema();
 
-    void revert();
+    String revert();
+
 }

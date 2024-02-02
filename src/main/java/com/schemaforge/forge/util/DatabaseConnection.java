@@ -1,5 +1,6 @@
 package com.schemaforge.forge.util;
 
+import com.schemaforge.forge.db.ConnectionProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.stereotype.Component;
 
@@ -9,10 +10,7 @@ import java.util.Map;
 @Component
 public class DatabaseConnection {
 
-    private String driver;
     private String url;
-
-    private String databaseName;
     private String username;
     private String password;
 
@@ -24,6 +22,12 @@ public class DatabaseConnection {
         url = databaseDetails.get("URL");
         username = databaseDetails.get("USERNAME");
         password = databaseDetails.get("PASSWORD");
+    }
+
+    public void setConnection(ConnectionProperties databaseDetails){
+        url = databaseDetails.getUrl();
+        username = databaseDetails.getUsername();
+        password = databaseDetails.getPassword();
     }
 
 

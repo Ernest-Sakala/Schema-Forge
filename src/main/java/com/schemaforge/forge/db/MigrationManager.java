@@ -10,41 +10,46 @@ import java.util.List;
 @Component
 public class MigrationManager {
 
+
     private JdbcTemplate jdbcTemplate;
 
     private final List<Migration> migrations = new ArrayList<>();
 
-
-
     private final DatabaseConnection databaseConnection;
 
-    public MigrationManager(){
-        databaseConnection = null;
-    }
-
+    @Autowired
     public MigrationManager(DatabaseConnection databaseConnection) {
         this.databaseConnection = databaseConnection;
         initializeJDBCConnection(databaseConnection);
     }
 
 
-    public JdbcTemplate initializeJDBCConnection(DatabaseConnection databaseConnection){
-        return new JdbcTemplate(databaseConnection.getDataSource());
+
+    public void initializeJDBCConnection(DatabaseConnection databaseConnection){
+        this.jdbcTemplate = new JdbcTemplate(databaseConnection.getDataSource());
     }
 
-    public void addMigration(Migration migration) {
-        migrations.add(migration);
+    public void addMigration(List<Migration> migration) {
+        migrations.addAll(migration);
     }
 
     public void runMigrations() {
+
         for (Migration migration : migrations) {
-            migration.forgeSchema();
+          String query = migration.forgeSchema();
+
+          if(query != null) {
+              System.out.println("Schema Forge Query" + query);
+              jdbcTemplate.execute(query);
+          }
         }
     }
 
     public void rollbackMigrations() {
         for (Migration migration : migrations) {
-            migration.revert();
+            String query = migration.forgeSchema();
+            System.out.println("Schema Forge Query" + query);
+            jdbcTemplate.execute(query);
         }
     }
 
