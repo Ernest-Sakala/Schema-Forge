@@ -1,9 +1,8 @@
-package com.schemaforge.forge.util;
+package com.schemaforge.forge.database;
 
-import com.schemaforge.forge.db.ConnectionProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-
 import javax.sql.DataSource;
 import java.util.Map;
 
@@ -13,6 +12,8 @@ public class DatabaseConnection {
     private String url;
     private String username;
     private String password;
+
+    private JdbcTemplate jdbcTemplate;
 
 
     public DatabaseConnection() {
@@ -45,6 +46,11 @@ public class DatabaseConnection {
         dataSourceBuilder.username(username);
         dataSourceBuilder.password(password);
         return dataSourceBuilder.build();
+    }
+
+
+    public JdbcTemplate database(){
+         return new JdbcTemplate(getDataSource());
     }
 
 }

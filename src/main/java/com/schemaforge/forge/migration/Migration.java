@@ -1,6 +1,4 @@
-package com.schemaforge.forge.db;
-
-import java.util.Map;
+package com.schemaforge.forge.migration;
 
 public interface Migration {
 

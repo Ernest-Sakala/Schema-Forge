@@ -26,7 +26,6 @@ public class EntityClassScanner {
 
         for (EntityType<?> entity : entities) {
             entityClasses.add(entity.getJavaType());
-            System.out.println("Entities >>>>>>>>>>>>>" + entity.getName());
         }
 
         return entityClasses;

@@ -1,4 +1,4 @@
-package com.schemaforge.forge.util;
+package com.schemaforge.forge.migration;
 
 
 import org.springframework.stereotype.Component;
@@ -6,8 +6,8 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+
+import static com.schemaforge.forge.util.Utility.getColumnType;
 
 @Component
 public class MigrationClassGenerator {
@@ -34,6 +34,7 @@ public class MigrationClassGenerator {
 
         // Iterate over the fields of the entity class and add them to the columnMap
         for (java.lang.reflect.Field field : entityClass.getDeclaredFields()) {
+
             String fieldName = field.getName();
             String columnName = fieldName.toUpperCase();
             String columnType = getColumnType(field.getType());
@@ -41,7 +42,7 @@ public class MigrationClassGenerator {
             code.append("\t\tcolumnMap.put(\"").append(columnName).append("\", \"").append(columnType).append("\");\n");
         }
 
-        code.append("\n\t\tString cre = new SchemaBuilder().tableName(\"").append(entityClass.getSimpleName().toUpperCase()).append("\").columns(columnMap).build();\n");
+        code.append("\n\t\tString cre = new SchemaBuilder().tableName(\"").append(entityClass.getSimpleName().toUpperCase()).append("\").columns(columnMap).createTable();\n");
         code.append("\t\treturn cre;\n");
         code.append("\t}\n\n");
 
@@ -55,20 +56,7 @@ public class MigrationClassGenerator {
         writeToFile("src/main/resources/forge/database/migrations",fileName, code.toString());
     }
 
-    private static String getColumnType(Class<?> fieldType) {
-        // Implement your logic to map Java types to database types
-        // This is a simplified example
-        if (fieldType == String.class) {
-            return "VARCHAR(255)";
-        } else if (fieldType == Integer.class || fieldType == int.class) {
-            return "INT";
-        } else if (fieldType == Long.class || fieldType == long.class) {
-            return "BIGINT";
-        } else {
-            // Add more type mappings as needed
-            return "VARCHAR(255)";
-        }
-    }
+
 
     private static void writeToFile(String fileName, String content) {
         try (FileWriter fileWriter = new FileWriter(fileName)) {

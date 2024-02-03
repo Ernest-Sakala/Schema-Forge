@@ -1,4 +1,4 @@
-package com.schemaforge.forge.db;
+package com.schemaforge.forge.database;
 
 import org.springframework.stereotype.Component;
 

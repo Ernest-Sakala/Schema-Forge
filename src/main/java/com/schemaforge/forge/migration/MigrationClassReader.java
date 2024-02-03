@@ -1,9 +1,7 @@
-package com.schemaforge.forge.util;
+package com.schemaforge.forge.migration;
 
 
-import com.schemaforge.forge.db.Migration;
 import org.springframework.stereotype.Component;
-
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 import java.io.File;
@@ -18,11 +16,11 @@ import java.util.List;
 @Component
 public class MigrationClassReader {
 
-    public List<Migration> getMigrationClasses() {
-        List<Migration> migrationClasses = new ArrayList<>();
+    public List<MigrationContainer> getMigrationClasses() {
+        List<MigrationContainer> migrationClasses = new ArrayList<>();
 
         try {
-            String migrationPath = "forge/database/migrations"; // Assuming classpath
+            String migrationPath = "forge/database/migrations";
             URL url = getClass().getClassLoader().getResource(migrationPath);
 
             if (url != null) {
@@ -30,7 +28,6 @@ public class MigrationClassReader {
                 Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
                     @Override
                     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                        System.out.println("File >>>>>>>>>" + file.toString());
                         if (file.toString().endsWith(".java")) {
                             compileAndLoadMigration(file, migrationClasses);
                         }
@@ -46,7 +43,7 @@ public class MigrationClassReader {
         return migrationClasses;
     }
 
-    private void compileAndLoadMigration(Path javaFile, List<Migration> migrationClasses) throws IOException {
+    private void compileAndLoadMigration(Path javaFile, List<MigrationContainer> migrationClasses) throws IOException {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         int compilationResult = compiler.run(null, null, null, javaFile.toFile().getAbsolutePath());
 
@@ -58,7 +55,10 @@ public class MigrationClassReader {
 
                 if (Migration.class.isAssignableFrom(migrationClass)) {
                     Migration migrationInstance = (Migration) migrationClass.newInstance();
-                    migrationClasses.add(migrationInstance);
+
+                    MigrationContainer migrationContainer = new MigrationContainer(migrationInstance,migrationClass.getName());
+
+                    migrationClasses.add(migrationContainer);
                 }
             } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
                 // Handle exceptions as needed

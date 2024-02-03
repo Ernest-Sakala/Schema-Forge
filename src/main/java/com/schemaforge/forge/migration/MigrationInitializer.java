@@ -1,8 +1,6 @@
-package com.schemaforge.forge.db;
+package com.schemaforge.forge.migration;
 
 import com.schemaforge.forge.util.EntityClassScanner;
-import com.schemaforge.forge.util.MigrationClassGenerator;
-import com.schemaforge.forge.util.MigrationClassReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
