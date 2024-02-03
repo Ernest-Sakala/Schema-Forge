@@ -20,11 +20,11 @@ public class MigrationClassGenerator {
 
         StringBuilder code = new StringBuilder();
         code.append("package ").append(packageName).append(";\n\n");
-        code.append("import com.schemaforge.forge.db.Migration;\n");
+        code.append("import com.schemaforge.forge.migration.Migration;\n");
         code.append("import org.springframework.stereotype.Component;\n");
         code.append("import java.util.HashMap;\n");
         code.append("import java.util.Map;\n");
-        code.append("import com.schemaforge.forge.db.SchemaBuilder;\n\n");
+        code.append("import com.schemaforge.forge.migration.SchemaBuilder;\n\n");
 
         code.append("@Component\n");
         code.append("public class ").append(className).append(" implements Migration {\n\n");

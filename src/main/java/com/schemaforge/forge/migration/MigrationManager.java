@@ -26,8 +26,6 @@ public class MigrationManager {
         initializeJDBCConnection(databaseConnection);
     }
 
-
-
     public void initializeJDBCConnection(DatabaseConnection databaseConnection){
         this.jdbcTemplate = new JdbcTemplate(databaseConnection.getDataSource());
     }
@@ -43,8 +41,8 @@ public class MigrationManager {
 
           if(query != null) {
               try {
-                  System.out.println("Schema Forge Query" + query);
-                  executeMigration.execute(migration.getMigrationName(),query);
+                  System.out.println("Schema Forge Migration Query >>> " + query);
+                  executeMigration.execute(migration.getMigrationName().trim(),query);
               }catch (Exception exception){
                   exception.printStackTrace();
               }

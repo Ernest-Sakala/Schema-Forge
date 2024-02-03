@@ -1,9 +1,14 @@
 package com.schemaforge.forge.migration;
 
 
+import com.schemaforge.forge.exception.MigrationAlreadyExistException;
+import com.schemaforge.forge.model.SchemaForgeMigrationHistoryModel;
+import com.schemaforge.forge.service.SchemaForeMigrationHistoryService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
+import javax.transaction.Transactional;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -15,6 +20,15 @@ import java.util.List;
 
 @Component
 public class MigrationClassReader {
+
+
+    private final SchemaForeMigrationHistoryService schemaForeMigrationHistoryService;
+
+    @Autowired
+    public MigrationClassReader(SchemaForeMigrationHistoryService schemaForeMigrationHistoryService) {
+        this.schemaForeMigrationHistoryService = schemaForeMigrationHistoryService;
+    }
+
 
     public List<MigrationContainer> getMigrationClasses() {
         List<MigrationContainer> migrationClasses = new ArrayList<>();
@@ -43,7 +57,9 @@ public class MigrationClassReader {
         return migrationClasses;
     }
 
-    private void compileAndLoadMigration(Path javaFile, List<MigrationContainer> migrationClasses) throws IOException {
+
+    @Transactional
+    public void compileAndLoadMigration(Path javaFile, List<MigrationContainer> migrationClasses) throws IOException {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         int compilationResult = compiler.run(null, null, null, javaFile.toFile().getAbsolutePath());
 
@@ -56,8 +72,16 @@ public class MigrationClassReader {
                 if (Migration.class.isAssignableFrom(migrationClass)) {
                     Migration migrationInstance = (Migration) migrationClass.newInstance();
 
-                    MigrationContainer migrationContainer = new MigrationContainer(migrationInstance,migrationClass.getName());
+                    String migration = className.trim();
+                    MigrationContainer migrationContainer = new MigrationContainer(migrationInstance,migration);
 
+                    SchemaForgeMigrationHistoryModel schemaForgeMigrationHistoryModel = schemaForeMigrationHistoryService.checkMigrationExists(migration+".java".trim());
+
+                    if(schemaForgeMigrationHistoryModel != null){
+                        if (schemaForgeMigrationHistoryModel.getMigration().equals(migration+".java".trim())) {
+                            return;
+                        }
+                    }
                     migrationClasses.add(migrationContainer);
                 }
             } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {

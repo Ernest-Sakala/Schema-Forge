@@ -2,10 +2,10 @@ package com.schemaforge.forge.service;
 
 import com.schemaforge.forge.model.SchemaForgeMigrationHistoryModel;
 import com.schemaforge.forge.database.DatabaseConnection;
+import com.schemaforge.forge.repository.SchemaForeMigrationHistoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
-
 import javax.annotation.PostConstruct;
 import javax.persistence.Table;
 import java.lang.reflect.Field;
@@ -19,9 +19,13 @@ public class SchemaForeMigrationHistoryService {
     private final DatabaseConnection databaseConnection;
 
 
+    private final SchemaForeMigrationHistoryRepository schemaForeMigrationHistoryRepository;
+
+
     @Autowired
-    public SchemaForeMigrationHistoryService(DatabaseConnection databaseConnection) {
+    public SchemaForeMigrationHistoryService(DatabaseConnection databaseConnection, SchemaForeMigrationHistoryRepository schemaForeMigrationHistoryRepository) {
         this.databaseConnection = databaseConnection;
+        this.schemaForeMigrationHistoryRepository = schemaForeMigrationHistoryRepository;
     }
 
 
@@ -49,13 +53,17 @@ public class SchemaForeMigrationHistoryService {
             String fieldName = field.getName();
             String columnName = fieldName.toUpperCase();
             String columnType = getColumnType(field.getType());
-            createTableQuery.append(columnName).append(" ").append(columnType).append(", ");
+
+            if(fieldName.equals("id")){
+                createTableQuery.append(columnName).append(" ").append("SERIAL PRIMARY KEY").append(", ");
+            }else {
+                createTableQuery.append(columnName).append(" ").append(columnType).append(", ");
+            }
+
         }
 
-        createTableQuery = new StringBuilder(createTableQuery.substring(0, createTableQuery.length() - 2));
+        createTableQuery.append("UNIQUE (migration)");
         createTableQuery.append(")");
-
-        System.out.println("History table Create Query : " + createTableQuery);
 
         try {
             databaseConnection.database().execute(createTableQuery.toString());
@@ -66,8 +74,18 @@ public class SchemaForeMigrationHistoryService {
     }
 
     public void insertMigrationHistory(SchemaForgeMigrationHistoryModel schemaForgeMigrationHistoryModel){
-
-        String sql = "INSERT INTO your_table (id, version, description, type, script, createddate, modifieddate) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        databaseConnection.database().
+        schemaForeMigrationHistoryRepository.insertMigrationHistory(schemaForgeMigrationHistoryModel);
     }
+
+
+    public SchemaForgeMigrationHistoryModel checkMigrationExists(SchemaForgeMigrationHistoryModel schemaForgeMigrationHistoryModel){
+       return schemaForeMigrationHistoryRepository.findByMigration(schemaForgeMigrationHistoryModel);
+    }
+
+
+    public SchemaForgeMigrationHistoryModel checkMigrationExists(String migration){
+        return schemaForeMigrationHistoryRepository.findByMigration(migration);
+    }
+
+
 }

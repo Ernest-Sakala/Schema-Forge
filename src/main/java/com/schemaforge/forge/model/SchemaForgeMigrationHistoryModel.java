@@ -17,7 +17,7 @@ public class SchemaForgeMigrationHistoryModel {
 
     private String type;
 
-    private String script;
+    private String migration;
 
     private LocalDateTime createdDate;
     private LocalDateTime modifiedDate;
@@ -25,12 +25,12 @@ public class SchemaForgeMigrationHistoryModel {
     public SchemaForgeMigrationHistoryModel() {
     }
 
-    public SchemaForgeMigrationHistoryModel(Long id, Integer version, String description, String type, String script, LocalDateTime createdDate, LocalDateTime modifiedDate) {
+    public SchemaForgeMigrationHistoryModel(Long id, Integer version, String description, String type, String migration, LocalDateTime createdDate, LocalDateTime modifiedDate) {
         this.id = id;
         this.version = version;
         this.description = description;
         this.type = type;
-        this.script = script;
+        this.migration = migration;
         this.createdDate = createdDate;
         this.modifiedDate = modifiedDate;
     }
@@ -67,12 +67,12 @@ public class SchemaForgeMigrationHistoryModel {
         this.type = type;
     }
 
-    public String getScript() {
-        return script;
+    public String getMigration() {
+        return migration;
     }
 
-    public void setScript(String script) {
-        this.script = script;
+    public void setMigration(String script) {
+        this.migration = script;
     }
 
     public LocalDateTime getCreatedDate() {
