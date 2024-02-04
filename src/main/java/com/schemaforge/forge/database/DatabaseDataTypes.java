@@ -7,4 +7,8 @@ public interface DatabaseDataTypes {
     String VARCHAR = "VARCHAR";
 
 
+    String  BIGINT = "BIGINT";
+
+    String BLOB = "BLOB";
+
 }

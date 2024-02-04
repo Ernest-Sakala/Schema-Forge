@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class MigrationManager {
+class MigrationManager {
 
 
     private JdbcTemplate jdbcTemplate;

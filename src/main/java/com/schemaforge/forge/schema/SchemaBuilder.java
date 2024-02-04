@@ -1,15 +1,16 @@
 package com.schemaforge.forge.schema;
 
-import com.schemaforge.forge.database.DatabaseDataTypes;
-import org.springframework.stereotype.Component;
 
-import java.util.AbstractMap;
-import java.util.HashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import java.util.Map;
 import java.util.function.Consumer;
 
 @Component
 public class SchemaBuilder implements Schema {
+
+    private static Logger log = LoggerFactory.getLogger(SchemaBuilder.class);
 
     private String tableName;
     private Map<String, String> columns;
@@ -54,10 +55,31 @@ public class SchemaBuilder implements Schema {
 
     public SchemaBuilder createTable(String tableName, Consumer<TableBuilder> columnDefinitions) {
         schema = new StringBuilder();
-        schema.append("CREATE TABLE ").append(tableName).append(" (");
+        schema.append("CREATE TABLE IF NOT EXISTS").append(tableName).append(" (");
         TableBuilder tableBuilder = new TableBuilder();
         columnDefinitions.accept(tableBuilder);
-        schema.append(tableBuilder.build()).append(");");
+        schema.append(tableBuilder.createTable()).append(");");
+        log.info("CREATE TABLE SCHEMA FORGE >>>>" + schema);
+        return this;
+    }
+
+    public SchemaBuilder addTableColumns(String tableName, Consumer<TableBuilder> columnDefinitions) {
+        schema = new StringBuilder();
+        schema.append("ALTER TABLE ").append(tableName).append(" ADD COLUMN").append(" ");
+        TableBuilder tableBuilder = new TableBuilder();
+        columnDefinitions.accept(tableBuilder);
+        schema.append(tableBuilder.addColumns()).append(";");
+        log.info("ALTER TABLE SCHEMA FORGE >>>>" + schema);
+        return this;
+    }
+
+
+    public SchemaBuilder addTableColumn(String tableName, Consumer<TableBuilder> columnDefinitions) {
+        schema = new StringBuilder();
+        schema.append("ALTER TABLE ADD COLUMN ").append(tableName).append(" ");
+        TableBuilder tableBuilder = new TableBuilder();
+        columnDefinitions.accept(tableBuilder);
+        schema.append(tableBuilder.addColumns()).append(";");
         return this;
     }
 
@@ -90,35 +112,6 @@ public class SchemaBuilder implements Schema {
         return null;
     }
 
-
-
-//    public static class TableBuilder {
-//        private Map<String, String> columns;
-//
-//        public TableBuilder() {
-//            this.columns = new HashMap<>();
-//        }
-//
-//        public Map.Entry<String, String> addDoubleColumn(String columnName) {
-//            String dataType = DatabaseDataTypes.DECIMAL;
-//            columns.put(columnName, dataType);
-//            return new AbstractMap.SimpleEntry<>(columnName, dataType);
-//        }
-//
-//
-//        public String build() {
-//            StringBuilder columnDefinitions = new StringBuilder();
-//            for (Map.Entry<String, String> entry : columns.entrySet()) {
-//                columnDefinitions.append(entry.getKey()).append(" ").append(entry.getValue()).append(", ");
-//            }
-//            // Remove the trailing comma and space
-//            if (columnDefinitions.length() > 2) {
-//                columnDefinitions.setLength(columnDefinitions.length() - 2);
-//            }
-//            return columnDefinitions.toString();
-//        }
-//    }
-//
 
 }
 
