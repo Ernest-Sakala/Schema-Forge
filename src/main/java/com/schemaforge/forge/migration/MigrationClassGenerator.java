@@ -24,7 +24,7 @@ public class MigrationClassGenerator {
         code.append("import org.springframework.stereotype.Component;\n");
         code.append("import java.util.HashMap;\n");
         code.append("import java.util.Map;\n");
-        code.append("import com.schemaforge.forge.migration.SchemaBuilder;\n\n");
+        code.append("import com.schemaforge.forge.schema.SchemaBuilder;\n\n");
 
         code.append("@Component\n");
         code.append("public class ").append(className).append(" implements Migration {\n\n");

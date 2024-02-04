@@ -1,4 +1,4 @@
-package com.schemaforge.forge.migration;
+package com.schemaforge.forge.schema;
 
 import java.util.Map;
 
