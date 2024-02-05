@@ -1,8 +1,9 @@
 package com.schemaforge.forge.migration;
 
-import com.schemaforge.forge.database.DatabaseConnection;
+import com.schemaforge.forge.config.SchemaForgeClientProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,25 +11,21 @@ import java.util.List;
 @Component
 class MigrationManager {
 
+    private static Logger log = LoggerFactory.getLogger(MigrationManager.class);
 
-    private JdbcTemplate jdbcTemplate;
 
     private final List<MigrationContainer> migrations = new ArrayList<>();
 
-    private final DatabaseConnection databaseConnection;
+    private MigrationExecutor migrationExecutor;
 
-    private ExecuteMigration executeMigration;
+    private SchemaForgeClientProperties schemaForgeClientProperties;
 
     @Autowired
-    public MigrationManager(DatabaseConnection databaseConnection, ExecuteMigration executeMigration) {
-        this.databaseConnection = databaseConnection;
-        this.executeMigration = executeMigration;
-        initializeJDBCConnection(databaseConnection);
+    public MigrationManager(MigrationExecutor migrationExecutor, SchemaForgeClientProperties schemaForgeClientProperties) {
+        this.migrationExecutor = migrationExecutor;
+        this.schemaForgeClientProperties = schemaForgeClientProperties;
     }
 
-    public void initializeJDBCConnection(DatabaseConnection databaseConnection){
-        this.jdbcTemplate = new JdbcTemplate(databaseConnection.getDataSource());
-    }
 
     public void addMigration(List<MigrationContainer> migration) {
         migrations.addAll(migration);
@@ -37,26 +34,27 @@ class MigrationManager {
     public void runMigrations() {
 
         for (MigrationContainer migration : migrations) {
-          String query = migration.getMigration().forgeSchema();
 
-          if(query != null) {
+            String query;
+            if(schemaForgeClientProperties.isRollbackMigrations()){
+
+                query = migration.getMigration().revert();
+
+                log.info("SCHEMA FORGE <<<<<<<<<<<<<<<<<<< Rolling back Migration >>>>>>>>>>>>>>>>> " + migration.getMigrationName() + " " + query);
+            }else {
+                query =  migration.getMigration().forgeSchema();
+            }
+
+            if(query != null ) {
               try {
-                  System.out.println("Schema Forge Migration Query >>> " + query);
-                  executeMigration.execute(migration.getMigrationName().trim(),query);
+                  migrationExecutor.execute(migration.getMigrationName().trim(),query);
               }catch (Exception exception){
                   exception.printStackTrace();
               }
-          }
+            }
         }
     }
 
-    public void rollbackMigrations() {
-        for (MigrationContainer migration : migrations) {
-            String query = migration.getMigration().forgeSchema();
-            System.out.println("Schema Forge Query" + query);
-            jdbcTemplate.execute(query);
-        }
-    }
 
 
 }

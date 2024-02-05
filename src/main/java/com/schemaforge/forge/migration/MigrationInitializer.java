@@ -28,13 +28,14 @@ public class MigrationInitializer {
     @PostConstruct
     public void migrate() {
 
+        System.out.println("<<<<<<<<<<<<<<<<<<<< Schema Forge Initializing migrations >>>>>>>>>>>>>>>>>");
+
         for(Class<?> entityClass : entityClassScanner.getEntityClasses()){
             migrationClassGenerator.generateMigrationClass(entityClass);
         }
 
         migrationManager.addMigration(migrationClassReader.getMigrationClasses());
 
-        System.out.println("<<<<<<<<<<<<<<<<<<<< Schema Forge Initializing migrations >>>>>>>>>>>>>>>>>");
 
         migrationManager.runMigrations();
 

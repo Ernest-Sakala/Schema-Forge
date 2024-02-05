@@ -87,5 +87,9 @@ public class SchemaForeMigrationHistoryService {
         return schemaForeMigrationHistoryRepository.findByMigration(migration);
     }
 
+    public int deleteByMigration(SchemaForgeMigrationHistoryModel schemaForgeMigrationHistoryModel){
+        return schemaForeMigrationHistoryRepository.deleteByMigration(schemaForgeMigrationHistoryModel);
+    }
+
 
 }

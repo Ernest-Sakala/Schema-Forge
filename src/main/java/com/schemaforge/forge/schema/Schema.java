@@ -12,8 +12,6 @@ public interface Schema {
 
     String createTable();
 
-    String dropTable();
+    SchemaBuilder dropTable(String tableName);
 
-
-    String tableAddColumns();
 }

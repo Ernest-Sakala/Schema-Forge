@@ -9,7 +9,6 @@ import java.util.Map;
 @Component
 public class SchemaBluePrint {
 
-
     public Map.Entry<String, String> addDoubleColumn(String columnName){
         return new AbstractMap.SimpleEntry<>(columnName, DatabaseDataTypes.DECIMAL);
     }

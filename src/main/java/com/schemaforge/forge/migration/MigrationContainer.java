@@ -1,6 +1,6 @@
 package com.schemaforge.forge.migration;
 
-public class MigrationContainer {
+class MigrationContainer {
 
     private Migration migration;
     private String migrationName;

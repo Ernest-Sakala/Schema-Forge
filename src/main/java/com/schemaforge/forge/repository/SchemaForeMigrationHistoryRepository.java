@@ -81,6 +81,20 @@ public class SchemaForeMigrationHistoryRepository {
     }
 
 
+    public int deleteByMigration(SchemaForgeMigrationHistoryModel schemaForgeMigrationHistoryModel) {
+
+        String sql = "DELETE FROM SCHEMA_FORGE_MIGRATION_HISTORY WHERE migration = ?";
+
+        try{
+            return databaseConnection.database().update(sql,schemaForgeMigrationHistoryModel.getMigration());
+        }catch (Exception exception){
+            exception.printStackTrace();
+        }
+        return 0;
+    }
+
+
+
     public SchemaForgeMigrationHistoryModel findByMigration(String migration) {
 
         System.out.println("Filtering Migrations to Execute >>>>>>>>>>>>>>>>>>" + migration);

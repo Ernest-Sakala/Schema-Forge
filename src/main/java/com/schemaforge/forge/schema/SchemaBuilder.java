@@ -55,13 +55,23 @@ public class SchemaBuilder implements Schema {
 
     public SchemaBuilder createTable(String tableName, Consumer<TableBuilder> columnDefinitions) {
         schema = new StringBuilder();
-        schema.append("CREATE TABLE IF NOT EXISTS").append(tableName).append(" (");
+        schema.append("CREATE TABLE IF NOT EXISTS ").append(tableName).append(" (");
         TableBuilder tableBuilder = new TableBuilder();
         columnDefinitions.accept(tableBuilder);
         schema.append(tableBuilder.createTable()).append(");");
         log.info("CREATE TABLE SCHEMA FORGE >>>>" + schema);
         return this;
     }
+
+    @Override
+    public SchemaBuilder dropTable(String tableName) {
+        schema = new StringBuilder();
+        schema.append("DROP TABLE IF EXISTS ").append(tableName).append(" CASCADE;");
+        log.info("DROP TABLE SCHEMA FORGE >>>>" + schema);
+        return this;
+    }
+
+
 
     public SchemaBuilder addTableColumns(String tableName, Consumer<TableBuilder> columnDefinitions) {
         schema = new StringBuilder();
@@ -74,6 +84,7 @@ public class SchemaBuilder implements Schema {
     }
 
 
+
     public SchemaBuilder addTableColumn(String tableName, Consumer<TableBuilder> columnDefinitions) {
         schema = new StringBuilder();
         schema.append("ALTER TABLE ADD COLUMN ").append(tableName).append(" ");
@@ -83,34 +94,11 @@ public class SchemaBuilder implements Schema {
         return this;
     }
 
-
-
-    @Override
-    public String tableAddColumns() {
-
-        String alterTableQuery = "ALTER TABLE  " + tableName ;
-
-        for (Map.Entry<String, String> column : columns.entrySet()) {
-            alterTableQuery +=  " ADD " + column.getKey() + " " + column.getValue() + ", ";
-        }
-
-        alterTableQuery = alterTableQuery.substring(0, alterTableQuery.length() - 2);
-
-        System.out.println("Table alter query forge : " + alterTableQuery);
-
-        return alterTableQuery;
-    }
-
-
     public String build() {
         return schema.toString();
     }
 
 
-    @Override
-    public String dropTable() {
-        return null;
-    }
 
 
 }

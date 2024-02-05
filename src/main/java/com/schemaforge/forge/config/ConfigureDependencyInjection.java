@@ -13,7 +13,8 @@ import org.springframework.context.annotation.Configuration;
             "com.schemaforge.forge.util",
             "com.schemaforge.forge.repository",
             "com.schemaforge.forge.model",
-            "com.schemaforge.forge.schema"
+            "com.schemaforge.forge.schema",
+            "com.schemaforge.forge.config"
         })
 public class ConfigureDependencyInjection {
 }

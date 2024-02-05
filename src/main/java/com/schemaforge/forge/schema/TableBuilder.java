@@ -3,7 +3,6 @@ package com.schemaforge.forge.schema;
 
 import com.schemaforge.forge.database.DatabaseDataTypes;
 import org.springframework.stereotype.Component;
-
 import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Map;

@@ -1,7 +1,7 @@
 package com.schemaforge.forge.migration;
 
 
-import com.schemaforge.forge.exception.MigrationAlreadyExistException;
+import com.schemaforge.forge.config.SchemaForgeClientProperties;
 import com.schemaforge.forge.model.SchemaForgeMigrationHistoryModel;
 import com.schemaforge.forge.service.SchemaForeMigrationHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +21,14 @@ import java.util.List;
 @Component
 public class MigrationClassReader {
 
+    private SchemaForgeClientProperties schemaForgeClientProperties;
+
 
     private final SchemaForeMigrationHistoryService schemaForeMigrationHistoryService;
 
     @Autowired
-    public MigrationClassReader(SchemaForeMigrationHistoryService schemaForeMigrationHistoryService) {
+    public MigrationClassReader(SchemaForgeClientProperties schemaForgeClientProperties, SchemaForeMigrationHistoryService schemaForeMigrationHistoryService) {
+        this.schemaForgeClientProperties = schemaForgeClientProperties;
         this.schemaForeMigrationHistoryService = schemaForeMigrationHistoryService;
     }
 
@@ -77,11 +80,14 @@ public class MigrationClassReader {
 
                     SchemaForgeMigrationHistoryModel schemaForgeMigrationHistoryModel = schemaForeMigrationHistoryService.checkMigrationExists(migration+".java".trim());
 
-                    if(schemaForgeMigrationHistoryModel != null){
-                        if (schemaForgeMigrationHistoryModel.getMigration().equals(migration+".java".trim())) {
-                            return;
+                    if(!schemaForgeClientProperties.isRollbackMigrations()){
+                        if(schemaForgeMigrationHistoryModel != null){
+                            if (schemaForgeMigrationHistoryModel.getMigration().equals(migration+".java".trim())) {
+                                return;
+                            }
                         }
                     }
+
                     migrationClasses.add(migrationContainer);
                 }
             } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
