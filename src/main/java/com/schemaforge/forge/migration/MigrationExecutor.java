@@ -1,6 +1,7 @@
 package com.schemaforge.forge.migration;
 
 import com.schemaforge.forge.config.SchemaForgeClientProperties;
+import com.schemaforge.forge.config.SchemaForgeCommands;
 import com.schemaforge.forge.database.DatabaseConnection;
 import com.schemaforge.forge.exception.MigrationAlreadyExistException;
 import com.schemaforge.forge.model.SchemaForgeMigrationHistoryModel;
@@ -49,7 +50,7 @@ public class MigrationExecutor {
 
             SchemaForgeMigrationHistoryModel schemaForgeMigrationHistory = schemaForeMigrationHistoryService.checkMigrationExists(schemaForgeMigrationHistoryModel);
 
-            if(!schemaForgeClientProperties.isRollbackMigrations()){
+            if(schemaForgeClientProperties.getCommand().equals(SchemaForgeCommands.MIGRATE)){
                 if(schemaForgeMigrationHistory != null) {
                     if (schemaForgeMigrationHistory.getMigration().equals(migration)) {
                         throw new MigrationAlreadyExistException();
@@ -59,7 +60,7 @@ public class MigrationExecutor {
                 databaseConnection.database().execute(query);
 
                 schemaForeMigrationHistoryService.insertMigrationHistory(schemaForgeMigrationHistoryModel);
-            }else {
+            }else if(schemaForgeClientProperties.getCommand().equals(SchemaForgeCommands.REVERT)){
 
                 databaseConnection.database().execute(query);
 

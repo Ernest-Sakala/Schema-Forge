@@ -4,16 +4,27 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConfigurationProperties(prefix = "schemaforge")
+@ConfigurationProperties(prefix = "forge")
 public class SchemaForgeClientProperties {
 
-    private boolean rollbackMigrations;
+    private String command;
 
-    public boolean isRollbackMigrations() {
-        return rollbackMigrations;
+    private String value;
+
+
+    public String getCommand() {
+        return command;
     }
 
-    public void setRollbackMigrations(boolean rollbackMigrations) {
-        this.rollbackMigrations = rollbackMigrations;
+    public void setCommand(String command) {
+        this.command = command;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
     }
 }

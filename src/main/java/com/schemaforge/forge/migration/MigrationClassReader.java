@@ -1,7 +1,11 @@
 package com.schemaforge.forge.migration;
 
 
+import com.schemaforge.forge.config.SchemaForgeAnonymous;
 import com.schemaforge.forge.config.SchemaForgeClientProperties;
+import com.schemaforge.forge.config.SchemaForgeCommandValue;
+import com.schemaforge.forge.config.SchemaForgeCommands;
+import com.schemaforge.forge.exception.MigrationDoesNotExistException;
 import com.schemaforge.forge.model.SchemaForgeMigrationHistoryModel;
 import com.schemaforge.forge.service.SchemaForeMigrationHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,10 +49,17 @@ public class MigrationClassReader {
                 Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
                     @Override
                     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+
+                        boolean continueWalking = true;
                         if (file.toString().endsWith(".java")) {
-                            compileAndLoadMigration(file, migrationClasses);
+                          continueWalking =  compileAndLoadMigration(file, migrationClasses);
                         }
-                        return FileVisitResult.CONTINUE;
+
+                        if(continueWalking) {
+                            return FileVisitResult.CONTINUE;
+                        }else {
+                            return FileVisitResult.TERMINATE;
+                        }
                     }
                 });
             }
@@ -62,7 +73,7 @@ public class MigrationClassReader {
 
 
     @Transactional
-    public void compileAndLoadMigration(Path javaFile, List<MigrationContainer> migrationClasses) throws IOException {
+    public boolean compileAndLoadMigration(Path javaFile, List<MigrationContainer> migrationClasses) throws IOException {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         int compilationResult = compiler.run(null, null, null, javaFile.toFile().getAbsolutePath());
 
@@ -78,17 +89,41 @@ public class MigrationClassReader {
                     String migration = className.trim();
                     MigrationContainer migrationContainer = new MigrationContainer(migrationInstance,migration);
 
-                    SchemaForgeMigrationHistoryModel schemaForgeMigrationHistoryModel = schemaForeMigrationHistoryService.checkMigrationExists(migration+".java".trim());
+                    String migrationClassName = migration + SchemaForgeAnonymous.JAVA_EXTENSION.trim();
 
-                    if(!schemaForgeClientProperties.isRollbackMigrations()){
+                    SchemaForgeMigrationHistoryModel schemaForgeMigrationHistoryModel = schemaForeMigrationHistoryService.checkMigrationExists(migrationClassName);
+
+                    if(schemaForgeClientProperties.getCommand().trim().equals(SchemaForgeCommands.REVERT)){
                         if(schemaForgeMigrationHistoryModel != null){
-                            if (schemaForgeMigrationHistoryModel.getMigration().equals(migration+".java".trim())) {
-                                return;
+
+                            if(schemaForgeClientProperties.getValue().trim().equals(SchemaForgeCommandValue.ALL)){
+                                migrationClasses.add(migrationContainer);
+                                return true;
+                            } else if(schemaForgeClientProperties.getValue().trim().equals(migrationClassName)){
+                                if (schemaForgeMigrationHistoryModel.getMigration().equals(migrationClassName)) {
+                                    migrationClasses.add(migrationContainer);
+                                    return false;
+                                }
                             }
+
+                        }else {
+                            try {
+                                throw new MigrationDoesNotExistException();
+                            } catch (MigrationDoesNotExistException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    }else if(schemaForgeClientProperties.getCommand().trim().equals(SchemaForgeCommands.MIGRATE)){
+                        if(schemaForgeClientProperties.getValue().trim().equals(SchemaForgeCommandValue.ALL)) {
+                            migrationClasses.add(migrationContainer);
+                            return true;
+                        }else if(schemaForgeClientProperties.getValue().trim().equals(migrationClassName)){
+                            migrationClasses.add(migrationContainer);
+                            return false;
                         }
                     }
 
-                    migrationClasses.add(migrationContainer);
+
                 }
             } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
                 // Handle exceptions as needed
@@ -98,6 +133,8 @@ public class MigrationClassReader {
             // Compilation failed
             System.err.println("Compilation failed for: " + javaFile.toString());
         }
+
+        return false;
     }
 
     private String getClassName(Path javaFile) {
