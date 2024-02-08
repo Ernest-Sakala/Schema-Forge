@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class MigrationClassReader {
+class MigrationClassReader {
 
     private SchemaForgeClientProperties schemaForgeClientProperties;
 

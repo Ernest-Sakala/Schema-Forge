@@ -21,13 +21,12 @@ class MigrationManager {
 
     private SchemaForgeClientProperties schemaForgeClientProperties;
 
-    private MigrationCommandsConfiguration migrationCommandsConfiguration;
 
     @Autowired
-    public MigrationManager(MigrationExecutor migrationExecutor, SchemaForgeClientProperties schemaForgeClientProperties, MigrationCommandsConfiguration migrationCommandsConfiguration) {
+    public MigrationManager(MigrationExecutor migrationExecutor, SchemaForgeClientProperties schemaForgeClientProperties) {
         this.migrationExecutor = migrationExecutor;
         this.schemaForgeClientProperties = schemaForgeClientProperties;
-        this.migrationCommandsConfiguration = migrationCommandsConfiguration;
+
     }
 
 
@@ -38,8 +37,6 @@ class MigrationManager {
     public void runMigrations() {
 
         log.info("<<<<<<<<<<<<<Running Schema Forge Migrations>>>>>>>>>>>>> : command " + schemaForgeClientProperties.getCommand() + "  value " + schemaForgeClientProperties.getValue());
-
-        migrationCommandsConfiguration.printArguments();
 
         for (MigrationContainer migration : migrations) {
 

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 
 @Component
-public class MigrationInitializer {
+class MigrationInitializer {
 
     private final MigrationManager migrationManager;
 
@@ -36,10 +36,7 @@ public class MigrationInitializer {
 
         migrationManager.addMigration(migrationClassReader.getMigrationClasses());
 
-
         migrationManager.runMigrations();
-
-
     }
 }
 

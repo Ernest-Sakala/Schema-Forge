@@ -3,7 +3,6 @@ package com.schemaforge.forge.migration;
 import com.schemaforge.forge.config.SchemaForgeClientProperties;
 import com.schemaforge.forge.config.SchemaForgeCommands;
 import com.schemaforge.forge.database.DatabaseConnection;
-import com.schemaforge.forge.exception.MigrationAlreadyExistException;
 import com.schemaforge.forge.model.SchemaForgeMigrationHistoryModel;
 import com.schemaforge.forge.service.SchemaForeMigrationHistoryService;
 import org.slf4j.Logger;
@@ -14,7 +13,7 @@ import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 
 @Component
-public class MigrationExecutor {
+class MigrationExecutor {
 
     private static Logger log = LoggerFactory.getLogger(MigrationExecutor.class);
 
@@ -51,15 +50,20 @@ public class MigrationExecutor {
             SchemaForgeMigrationHistoryModel schemaForgeMigrationHistory = schemaForeMigrationHistoryService.checkMigrationExists(schemaForgeMigrationHistoryModel);
 
             if(schemaForgeClientProperties.getCommand().equals(SchemaForgeCommands.MIGRATE)){
+
+                boolean executeQuery = true;
                 if(schemaForgeMigrationHistory != null) {
                     if (schemaForgeMigrationHistory.getMigration().equals(migration)) {
-                        throw new MigrationAlreadyExistException();
+                        executeQuery = false;
                     }
                 }
 
-                databaseConnection.database().execute(query);
+                if(executeQuery) {
+                    databaseConnection.database().execute(query);
+                    schemaForeMigrationHistoryService.insertMigrationHistory(schemaForgeMigrationHistoryModel);
+                }
 
-                schemaForeMigrationHistoryService.insertMigrationHistory(schemaForgeMigrationHistoryModel);
+
             }else if(schemaForgeClientProperties.getCommand().equals(SchemaForgeCommands.REVERT)){
 
                 databaseConnection.database().execute(query);

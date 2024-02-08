@@ -84,6 +84,17 @@ public class SchemaBuilder implements Schema {
     }
 
 
+    public SchemaBuilder dropColumns(String tableName, Consumer<TableBuilder> columnDefinitions){
+        schema = new StringBuilder();
+        schema.append("ALTER TABLE ").append(tableName).append(" ");
+        TableBuilder tableBuilder = new TableBuilder();
+        columnDefinitions.accept(tableBuilder);
+        schema.append(tableBuilder.dropColumns()).append(";");
+        log.info("ALTER TABLE SCHEMA FORGE >>>>" + schema);
+        return this;
+    }
+
+
 
     public SchemaBuilder addTableColumn(String tableName, Consumer<TableBuilder> columnDefinitions) {
         schema = new StringBuilder();
