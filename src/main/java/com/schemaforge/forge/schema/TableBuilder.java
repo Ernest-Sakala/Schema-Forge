@@ -9,22 +9,31 @@ import java.util.*;
 public class TableBuilder {
     private Map<String, String> columnDefinitions;
 
+    private Stack<String> columnNamesStack;
+
     private List<String> columnNames;
+
+    private ColumnBuilder columnBuilder;
 
     public TableBuilder() {
        this.columnDefinitions = new HashMap<>();
        this.columnNames = new ArrayList<>();
+       this.columnNamesStack = new Stack<>();
+        this.columnBuilder = new ColumnBuilder();
     }
 
-    public void addDoubleColumn(String columnName) {
+    public ColumnBuilder addDoubleColumn(String columnName) {
         checkColumnValidity(columnName);
-        columnDefinitions.put(columnName, DatabaseDataTypes.DECIMAL);
+        columnBuilder.addDoubleColumn(columnName);
+        return columnBuilder;
     }
 
 
-    public void addStringColumn(String columnName) {
+    public ColumnBuilder addStringColumn(String columnName) {
         checkColumnValidity(columnName);
         columnDefinitions.put(columnName, DatabaseDataTypes.VARCHAR);
+        columnBuilder.addStringColumn(columnName);
+        return this.columnBuilder;
     }
 
 
@@ -37,9 +46,10 @@ public class TableBuilder {
      *
      ***/
 
-    public void columnName(String columnName) {
+    public TableBuilder columnName(String columnName) {
         checkColumnValidity(columnName);
         columnNames.add(columnName);
+        return this;
     }
 
 
@@ -54,6 +64,19 @@ public class TableBuilder {
         }
         return columnDefinitions.toString();
     }
+
+    protected String renameTable() {
+        StringBuilder columnDefinitions = new StringBuilder();
+        for (Map.Entry<String, String> entry : this.columnDefinitions.entrySet()) {
+            columnDefinitions.append(entry.getKey()).append(" ").append(entry.getValue()).append(", ");
+        }
+        // Remove the trailing comma and space
+        if (columnDefinitions.length() > 2) {
+            columnDefinitions.setLength(columnDefinitions.length() - 2);
+        }
+        return columnDefinitions.toString();
+    }
+
 
 
     protected String addTableColumns() {
@@ -139,5 +162,68 @@ public class TableBuilder {
             throw new IllegalArgumentException("Column name should only contain letters");
         }
     }
+
+
+
+    // Inner class for column building
+    public class ColumnBuilder {
+        private Stack<String> columnOrder;
+
+        public ColumnBuilder() {
+            this.columnOrder = new Stack<>();
+        }
+
+        private void addDoubleColumn(String columnName) {
+            checkColumnValidity(columnName);
+            columnDefinitions.put(columnName, DatabaseDataTypes.DECIMAL);
+            columnOrder.push(columnName);
+        }
+
+        private void addStringColumn(String columnName) {
+            checkColumnValidity(columnName);
+            columnDefinitions.put(columnName, "VARCHAR");
+            columnOrder.push(columnName);
+        }
+
+        public ColumnBuilder nullable(boolean nullable) {
+            String columnName = columnOrder.isEmpty() ? null : columnOrder.peek();
+            if (columnName == null) {
+                throw new IllegalStateException("No column has been added yet.");
+            }
+
+           String columnDefinition = nullable ?  columnDefinitions.get(columnName).concat(" NULL") :  columnDefinitions.get(columnName).concat(" NOT NULL ");
+           columnDefinitions.put(columnName,columnDefinition);
+
+           return this;
+        }
+
+        public ColumnBuilder defaultValue(String value) {
+
+            // perfoming validation to accept other data types
+            String columnName = columnOrder.isEmpty() ? null : columnOrder.peek();
+            if (columnName == null) {
+                throw new IllegalStateException("No column has been added yet.");
+            }
+
+            String columnDefinition = columnDefinitions.get(columnName).concat(" DEFAULT ").concat("'").concat(value).concat("'");
+
+            columnDefinitions.put(columnName,columnDefinition);
+
+            return this;
+        }
+
+
+
+        private void checkColumnValidity(String columnName) {
+            if (columnName == null || columnName.isEmpty()) {
+                throw new IllegalArgumentException("Column Name Cannot be null or empty");
+            }
+            if (!columnName.matches("[a-zA-Z_][a-zA-Z0-9_]*")) {
+                throw new IllegalArgumentException("Column name should only contain letters, digits, or underscores and must start with a letter.");
+            }
+        }
+    }
+
+
 
 }

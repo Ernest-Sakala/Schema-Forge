@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 @Component
 public class SchemaBuilder implements Schema {
 
-    private static Logger log = LoggerFactory.getLogger(SchemaBuilder.class);
+    private static final Logger log = LoggerFactory.getLogger(SchemaBuilder.class);
 
     private String tableName;
     private Map<String, String> columns;
@@ -63,6 +63,15 @@ public class SchemaBuilder implements Schema {
         return this;
     }
 
+    public SchemaBuilder renameTable(String oldTableName,String newTableName) {
+        schema = new StringBuilder();
+        schema.append("ALTER TABLE IF NOT EXISTS ").append(tableName).append(" RENAME TO ").append(newTableName);
+        log.info("CREATE TABLE SCHEMA FORGE >>>>" + schema);
+        return this;
+    }
+
+
+
     @Override
     public SchemaBuilder dropTable(String tableName) {
         schema = new StringBuilder();
@@ -75,7 +84,7 @@ public class SchemaBuilder implements Schema {
 
     public SchemaBuilder addTableColumns(String tableName, Consumer<TableBuilder> columnDefinitions) {
         schema = new StringBuilder();
-        schema.append("ALTER TABLE ").append(tableName).append(" ADD COLUMN").append(" ");
+        schema.append("ALTER TABLE IF EXITS ").append(tableName).append(" ADD COLUMN").append(" ");
         TableBuilder tableBuilder = new TableBuilder();
         columnDefinitions.accept(tableBuilder);
         schema.append(tableBuilder.addColumns()).append(";");
