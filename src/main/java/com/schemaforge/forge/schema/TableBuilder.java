@@ -31,20 +31,29 @@ public class TableBuilder {
 
     public ColumnBuilder addStringColumn(String columnName) {
         checkColumnValidity(columnName);
-        columnDefinitions.put(columnName, DatabaseDataTypes.VARCHAR);
         columnBuilder.addStringColumn(columnName);
         return this.columnBuilder;
     }
 
+    public ColumnBuilder addBigIntColumn(String columnName) {
+        checkColumnValidity(columnName);
+        columnBuilder.addBigIntColumn(columnName);
+        return this.columnBuilder;
+    }
+
+    public ColumnBuilder addBooleanColumn(String columnName) {
+        checkColumnValidity(columnName);
+        columnBuilder.addBooleanColumn(columnName);
+        return this.columnBuilder;
+    }
 
 
-    /**
-     * @author Ernest Sakala
-     * @return void
-     * @param columnName
-     * add column name to list of column names
-     *
-     ***/
+    public ColumnBuilder addBigTimeStampColumn(String columnName) {
+        checkColumnValidity(columnName);
+        columnBuilder.addTimeStampColumn(columnName);
+        return this.columnBuilder;
+    }
+
 
     public TableBuilder columnName(String columnName) {
         checkColumnValidity(columnName);
@@ -58,7 +67,7 @@ public class TableBuilder {
         for (Map.Entry<String, String> entry : this.columnDefinitions.entrySet()) {
             columnDefinitions.append(entry.getKey()).append(" ").append(entry.getValue()).append(", ");
         }
-        // Remove the trailing comma and space
+
         if (columnDefinitions.length() > 2) {
             columnDefinitions.setLength(columnDefinitions.length() - 2);
         }
@@ -70,7 +79,6 @@ public class TableBuilder {
         for (Map.Entry<String, String> entry : this.columnDefinitions.entrySet()) {
             columnDefinitions.append(entry.getKey()).append(" ").append(entry.getValue()).append(", ");
         }
-        // Remove the trailing comma and space
         if (columnDefinitions.length() > 2) {
             columnDefinitions.setLength(columnDefinitions.length() - 2);
         }
@@ -84,7 +92,6 @@ public class TableBuilder {
         for (Map.Entry<String, String> entry : this.columnDefinitions.entrySet()) {
             columnDefinitions.append(entry.getKey()).append(" ").append(entry.getValue()).append(", ");
         }
-        // Remove the trailing comma and space
         if (columnDefinitions.length() > 2) {
             columnDefinitions.setLength(columnDefinitions.length() - 2);
         }
@@ -107,9 +114,6 @@ public class TableBuilder {
             sqlStatement.append(entry.getKey()).append(" ").append(entry.getValue()).append(", ");
         }
 
-
-
-        // Remove the trailing comma and space
          sqlStatement.setLength(sqlStatement.length() - 2);
 
         return sqlStatement.toString();
@@ -134,8 +138,6 @@ public class TableBuilder {
         return sqlStatement.toString();
     }
 
-
-    // DROP COLUMN IF EXISTS
 
     // Method to add a single column to an existing or new table
     public String addColumn() {
@@ -165,7 +167,7 @@ public class TableBuilder {
 
 
 
-    // Inner class for column building
+
     public class ColumnBuilder {
         private Stack<String> columnOrder;
 
@@ -181,9 +183,29 @@ public class TableBuilder {
 
         private void addStringColumn(String columnName) {
             checkColumnValidity(columnName);
-            columnDefinitions.put(columnName, "VARCHAR");
+            columnDefinitions.put(columnName, DatabaseDataTypes.VARCHAR);
             columnOrder.push(columnName);
         }
+
+        private void addBigIntColumn(String columnName) {
+            checkColumnValidity(columnName);
+            columnDefinitions.put(columnName, DatabaseDataTypes.BIGINT);
+            columnOrder.push(columnName);
+        }
+
+        private void addBooleanColumn(String columnName) {
+            checkColumnValidity(columnName);
+            columnDefinitions.put(columnName, DatabaseDataTypes.BOOLEAN);
+            columnOrder.push(columnName);
+        }
+
+
+        private void addTimeStampColumn(String columnName) {
+            checkColumnValidity(columnName);
+            columnDefinitions.put(columnName, DatabaseDataTypes.TIMESTAMP);
+            columnOrder.push(columnName);
+        }
+
 
         public ColumnBuilder nullable(boolean nullable) {
             String columnName = columnOrder.isEmpty() ? null : columnOrder.peek();
