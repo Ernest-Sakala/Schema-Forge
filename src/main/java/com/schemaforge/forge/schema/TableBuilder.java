@@ -14,7 +14,6 @@ public class TableBuilder {
     private List<String> columnNames;
 
     private ColumnBuilder columnBuilder;
-
     public TableBuilder() {
        this.columnDefinitions = new HashMap<>();
        this.columnNames = new ArrayList<>();
@@ -153,16 +152,19 @@ public class TableBuilder {
 
 
     private void checkColumnValidity(String columnName){
-        if(columnName == null){
+
+        if(columnName == null) {
             throw new NullPointerException("Column Name Cannot be null");
         }
-        if(columnName.isEmpty()){
+
+        if (columnName.isEmpty()) {
             throw new IllegalArgumentException("Column Name Cannot be empty");
         }
 
-        if(!columnName.chars().allMatch(Character::isLetter)){
-            throw new IllegalArgumentException("Column name should only contain letters");
+        if (!columnName.matches("[a-zA-Z_][a-zA-Z0-9_]*")) {
+            throw new IllegalArgumentException("Column name should only contain letters, digits, or underscores and must start with a letter.");
         }
+
     }
 
 

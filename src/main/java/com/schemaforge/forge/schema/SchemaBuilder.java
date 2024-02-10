@@ -65,7 +65,7 @@ public class SchemaBuilder implements Schema {
 
     public SchemaBuilder renameTable(String oldTableName,String newTableName) {
         schema = new StringBuilder();
-        schema.append("ALTER TABLE IF NOT EXISTS ").append(tableName).append(" RENAME TO ").append(newTableName);
+        schema.append("ALTER TABLE IF NOT EXISTS ").append(oldTableName).append(" RENAME TO ").append(newTableName);
         log.info("CREATE TABLE SCHEMA FORGE >>>>" + schema);
         return this;
     }
