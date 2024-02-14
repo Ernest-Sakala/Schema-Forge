@@ -1,13 +1,10 @@
 package com.schemaforge.forge.schema;
 
 
-import com.schemaforge.forge.config.SchemaForgeClientProperties;
-import com.schemaforge.forge.database.DatabaseConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import java.util.Map;
 import java.util.function.Consumer;
 
 @Component
@@ -18,7 +15,7 @@ public class SchemaBuilder{
     private StringBuilder schema;
 
     @Autowired
-    private SchemaFactory schemaFactory;
+    private Schema schemaFactory;
 
     public SchemaBuilder() {
     }
@@ -32,7 +29,7 @@ public class SchemaBuilder{
     public String createTable(String tableName, Consumer<TableBuilder> columnDefinitions) {
         TableBuilder tableBuilder = new TableBuilder();
         columnDefinitions.accept(tableBuilder);
-        String query = schemaFactory.getDatabaseType().createTable(tableName,tableBuilder);
+        String query = schemaFactory.createTable(tableName,tableBuilder);
         log.info("CREATE TABLE SCHEMA FORGE >>>>" + query);
         return query;
     }
