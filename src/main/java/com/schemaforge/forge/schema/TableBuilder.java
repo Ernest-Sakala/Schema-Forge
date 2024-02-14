@@ -1,7 +1,9 @@
 package com.schemaforge.forge.schema;
 
 
+import com.schemaforge.forge.config.SchemaForgeClientProperties;
 import com.schemaforge.forge.database.DatabaseDataTypes;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import java.util.*;
 
@@ -12,6 +14,7 @@ public class TableBuilder {
     private Stack<String> columnNamesStack;
 
     private List<String> columnNames;
+
 
     private ColumnBuilder columnBuilder;
     public TableBuilder() {

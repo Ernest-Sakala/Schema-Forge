@@ -1,5 +1,6 @@
 package com.schemaforge.forge.schema;
 
+import com.schemaforge.forge.config.SchemaForgeClientProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.util.function.Consumer;
@@ -10,6 +11,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class SchemaBuilderTest {
 
     private SchemaBuilder schemaBuilder;
+
+
+    private SchemaForgeClientProperties schemaForgeClientProperties;
 
 
     @BeforeEach
