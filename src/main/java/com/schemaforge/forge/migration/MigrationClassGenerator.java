@@ -50,7 +50,7 @@ public class MigrationClassGenerator {
             addColumMethods(entityClass, code);
         }
 
-        code.append("\t\t}).build();\n");
+        code.append("\t\t});\n");
         code.append("\t}\n\n");
 
         code.append("\t@Override\n");
@@ -59,7 +59,7 @@ public class MigrationClassGenerator {
         if(tableName.equals("")) {
             code.append("\t\treturn new SchemaBuilder().dropTable(\"").append("ENTER TABLE NAME").append("\").build();\n");
         }else {
-            code.append("\t\treturn new SchemaBuilder().dropTable(\"").append(tableName).append("\").build();\n");
+            code.append("\t\treturn new SchemaBuilder().dropTable(\"").append(tableName).append("\");\n");
         }
         code.append("\t}\n");
         code.append("}\n");

@@ -39,6 +39,17 @@ class TableBuilderTest {
         assertTrue(tableBuilder.createTable().contains("test_column BOOLEAN"));
     }
 
+
+    @Test
+    void testDecimalColumn() {
+        tableBuilder.addDecimalColumn("test_column");
+        assertTrue(tableBuilder.createTable().contains("test_column DECIMAL"));
+        tableBuilder.addDecimalColumn("test_column", 10);
+        assertTrue(tableBuilder.createTable().contains("test_column DECIMAL(10)"));
+        tableBuilder.addDecimalColumn("test_column", 10, 2);
+        assertTrue(tableBuilder.createTable().contains("test_column DECIMAL(10,2)"));
+    }
+
     @Test
     void testAddBigTimeStampColumn() {
         tableBuilder.addBigTimeStampColumn("test_column");

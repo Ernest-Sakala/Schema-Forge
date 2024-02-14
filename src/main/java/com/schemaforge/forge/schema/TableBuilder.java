@@ -7,7 +7,7 @@ import java.util.*;
 
 @Component
 public class TableBuilder {
-    private Map<String, String> columnDefinitions;
+    protected Map<String, String> columnDefinitions;
 
     private Stack<String> columnNamesStack;
 
@@ -26,6 +26,27 @@ public class TableBuilder {
         columnBuilder.addDoubleColumn(columnName);
         return columnBuilder;
     }
+
+    public ColumnBuilder addDecimalColumn(String columnName, int  precision) {
+        checkColumnValidity(columnName);
+        columnBuilder.addDecimalColumn(columnName,precision);
+        return columnBuilder;
+    }
+
+
+    public ColumnBuilder addDecimalColumn(String columnName) {
+        checkColumnValidity(columnName);
+        columnBuilder.addDecimalColumn(columnName);
+        return columnBuilder;
+    }
+
+    public ColumnBuilder addDecimalColumn(String columnName, int  precision, int scale) {
+        checkColumnValidity(columnName);
+        columnBuilder.addDecimalColumn(columnName,precision,scale);
+        return columnBuilder;
+    }
+
+
 
 
     public ColumnBuilder addStringColumn(String columnName) {
@@ -177,49 +198,16 @@ public class TableBuilder {
             this.columnOrder = new Stack<>();
         }
 
-        private void addDoubleColumn(String columnName) {
-            checkColumnValidity(columnName);
-            columnDefinitions.put(columnName, DatabaseDataTypes.DECIMAL);
-            columnOrder.push(columnName);
-        }
 
-        private void addStringColumn(String columnName) {
-            checkColumnValidity(columnName);
-            columnDefinitions.put(columnName, DatabaseDataTypes.VARCHAR);
-            columnOrder.push(columnName);
-        }
-
-        private void addBigIntColumn(String columnName) {
-            checkColumnValidity(columnName);
-            columnDefinitions.put(columnName, DatabaseDataTypes.BIGINT);
-            columnOrder.push(columnName);
-        }
-
-        private void addBooleanColumn(String columnName) {
-            checkColumnValidity(columnName);
-            columnDefinitions.put(columnName, DatabaseDataTypes.BOOLEAN);
-            columnOrder.push(columnName);
-        }
-
-
-        private void addTimeStampColumn(String columnName) {
-            checkColumnValidity(columnName);
-            columnDefinitions.put(columnName, DatabaseDataTypes.TIMESTAMP);
-            columnOrder.push(columnName);
-        }
-
-
-        public ColumnBuilder nullable(boolean nullable) {
-            String columnName = columnOrder.isEmpty() ? null : columnOrder.peek();
-            if (columnName == null) {
-                throw new IllegalStateException("No column has been added yet.");
+        private void checkColumnValidity(String columnName) {
+            if (columnName == null || columnName.isEmpty()) {
+                throw new IllegalArgumentException("Column Name Cannot be null or empty");
             }
-
-           String columnDefinition = nullable ?  columnDefinitions.get(columnName).concat(" NULL") :  columnDefinitions.get(columnName).concat(" NOT NULL ");
-           columnDefinitions.put(columnName,columnDefinition);
-
-           return this;
+            if (!columnName.matches("[a-zA-Z_][a-zA-Z0-9_]*")) {
+                throw new IllegalArgumentException("Column name should only contain letters, digits, or underscores and must start with a letter.");
+            }
         }
+
 
         public ColumnBuilder defaultValue(String value) {
 
@@ -236,16 +224,73 @@ public class TableBuilder {
             return this;
         }
 
-
-
-        private void checkColumnValidity(String columnName) {
-            if (columnName == null || columnName.isEmpty()) {
-                throw new IllegalArgumentException("Column Name Cannot be null or empty");
+        public ColumnBuilder nullable(boolean nullable) {
+            String columnName = columnOrder.isEmpty() ? null : columnOrder.peek();
+            if (columnName == null) {
+                throw new IllegalStateException("No column has been added yet.");
             }
-            if (!columnName.matches("[a-zA-Z_][a-zA-Z0-9_]*")) {
-                throw new IllegalArgumentException("Column name should only contain letters, digits, or underscores and must start with a letter.");
-            }
+
+            String columnDefinition = nullable ?  columnDefinitions.get(columnName).concat(" NULL") :  columnDefinitions.get(columnName).concat(" NOT NULL ");
+            columnDefinitions.put(columnName,columnDefinition);
+
+            return this;
         }
+
+
+
+        private void addDoubleColumn(String columnName) {
+            columnDefinitions.put(columnName, DatabaseDataTypes.DECIMAL);
+            columnOrder.push(columnName);
+        }
+
+        private void addStringColumn(String columnName) {
+            columnDefinitions.put(columnName, DatabaseDataTypes.VARCHAR);
+            columnOrder.push(columnName);
+        }
+
+        private void addBigIntColumn(String columnName) {
+            columnDefinitions.put(columnName, DatabaseDataTypes.BIGINT);
+            columnOrder.push(columnName);
+        }
+
+        private void addBooleanColumn(String columnName) {
+            checkColumnValidity(columnName);
+            columnDefinitions.put(columnName, DatabaseDataTypes.BOOLEAN);
+            columnOrder.push(columnName);
+        }
+
+
+        private void addTimeStampColumn(String columnName) {
+            columnDefinitions.put(columnName, DatabaseDataTypes.TIMESTAMP);
+            columnOrder.push(columnName);
+        }
+
+
+        private void addDecimalColumn(String columnName, int precision, int scale) {
+            if(precision == 0 || scale == 0){
+                throw new IllegalStateException("Precision or Scale cannot be zero");
+            }
+            columnDefinitions.put(columnName, DatabaseDataTypes.DECIMAL.concat("(" + precision + "," + scale + ")"));
+            columnOrder.push(columnName);
+        }
+
+
+        private void addDecimalColumn(String columnName) {
+            columnDefinitions.put(columnName, DatabaseDataTypes.DECIMAL);
+            columnOrder.push(columnName);
+        }
+
+
+        private void addDecimalColumn(String columnName,int precision) {
+            if(precision == 0){
+                throw new IllegalStateException("Precision cannot be zero");
+            }
+            columnDefinitions.put(columnName, DatabaseDataTypes.DECIMAL.concat("("+precision +")"));
+            columnOrder.push(columnName);
+        }
+
+
+
     }
 
 

@@ -1,69 +1,44 @@
 package com.schemaforge.forge.schema;
 
 
+import com.schemaforge.forge.database.DatabaseConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import java.util.Map;
 import java.util.function.Consumer;
 
 @Component
-public class SchemaBuilder implements Schema {
+public class SchemaBuilder{
 
     private static final Logger log = LoggerFactory.getLogger(SchemaBuilder.class);
 
-    private String tableName;
-    private Map<String, String> columns;
-
     private StringBuilder schema;
 
+    @Autowired
+    private  DatabaseConnection databaseType;
 
-    @Override
-    public SchemaBuilder tableName(String tableName) {
-        this.tableName = tableName;
-        return this;
+    public SchemaBuilder() {
     }
 
-    @Override
+
     public SchemaBuilder schemaBuilder(){
         return this;
     }
 
-    @Override
-    public SchemaBuilder columns(Map<String, String> columns) {
-        this.columns = columns;
-        return this;
-    }
 
-    @Override
-    public String createTable() {
-
-        String createTableQuery = "CREATE TABLE IF NOT EXISTS " + tableName + " (";
-
-        for (Map.Entry<String, String> column : columns.entrySet()) {
-            createTableQuery += column.getKey() + " " + column.getValue() + ", ";
-        }
-
-        createTableQuery = createTableQuery.substring(0, createTableQuery.length() - 2);
-        createTableQuery += ")";
-
-        System.out.println("Table created: " + createTableQuery);
-
-        return createTableQuery;
-    }
-
-
-    public SchemaBuilder createTable(String tableName, Consumer<TableBuilder> columnDefinitions) {
-        schema = new StringBuilder();
-        schema.append("CREATE TABLE IF NOT EXISTS ").append(tableName).append(" (");
+    public String createTable(String tableName, Consumer<TableBuilder> columnDefinitions) {
         TableBuilder tableBuilder = new TableBuilder();
         columnDefinitions.accept(tableBuilder);
-        schema.append(tableBuilder.createTable()).append(");");
-        log.info("CREATE TABLE SCHEMA FORGE >>>>" + schema);
-        return this;
+        String query = new PostgresSQLSchema().createTable(tableName,tableBuilder);
+        log.info("CREATE TABLE SCHEMA FORGE >>>>" + query);
+        return query;
     }
 
-    public SchemaBuilder renameTable(String oldTableName,String newTableName) {
+
+
+    public SchemaBuilder renameTable(String oldTableName, String newTableName) {
         schema = new StringBuilder();
         schema.append("ALTER TABLE IF NOT EXISTS ").append(oldTableName).append(" RENAME TO ").append(newTableName);
         log.info("CREATE TABLE SCHEMA FORGE >>>>" + schema);
@@ -72,12 +47,11 @@ public class SchemaBuilder implements Schema {
 
 
 
-    @Override
-    public SchemaBuilder dropTable(String tableName) {
+    public String dropTable(String tableName) {
         schema = new StringBuilder();
         schema.append("DROP TABLE IF EXISTS ").append(tableName).append(" CASCADE;");
         log.info("DROP TABLE SCHEMA FORGE >>>>" + schema);
-        return this;
+        return schema.toString();
     }
 
 

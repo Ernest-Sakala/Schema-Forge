@@ -11,6 +11,8 @@ public class SchemaForgeClientProperties {
 
     private String value;
 
+    private String database;
+
 
     public String getCommand() {
         return command;
@@ -26,5 +28,14 @@ public class SchemaForgeClientProperties {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+
+    public String getDatabase() {
+        return database;
+    }
+
+    public void setDatabase(String database) {
+        this.database = database;
     }
 }

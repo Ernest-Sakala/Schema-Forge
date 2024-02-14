@@ -1,17 +1,16 @@
 package com.schemaforge.forge.schema;
 
-import java.util.Map;
+import org.springframework.stereotype.Component;
+import java.util.function.Consumer;
 
+@Component
 public interface Schema {
 
-    SchemaBuilder tableName(String tableName);
-
-    SchemaBuilder columns(Map<String, String> columns);
-
-    SchemaBuilder schemaBuilder();
-
-    String createTable();
-
+    String createTable(String tableName, TableBuilder tableBuilder);
+    SchemaBuilder renameTable(String oldTableName, String newTableName);
     SchemaBuilder dropTable(String tableName);
-
+    SchemaBuilder addTableColumns(String tableName, Consumer<TableBuilder> columnDefinitions);
+    SchemaBuilder dropColumns(String tableName, Consumer<TableBuilder> columnDefinitions);
+    SchemaBuilder addTableColumn(String tableName, Consumer<TableBuilder> columnDefinitions);
+    String build();
 }

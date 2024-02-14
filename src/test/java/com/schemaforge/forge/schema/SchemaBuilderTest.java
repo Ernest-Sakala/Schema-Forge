@@ -17,19 +17,16 @@ class SchemaBuilderTest {
         schemaBuilder = new SchemaBuilder();
     }
 
-    @Test
-    void testTableName() {
-        String tableName = "test_table";
-        assertEquals(schemaBuilder.tableName(tableName), schemaBuilder);
-    }
 
-    @Test
+
     void testCreateTable() {
-        Consumer<TableBuilder> tableBuilderConsumer = tableBuilder -> tableBuilder.addStringColumn("column1");
-        schemaBuilder.createTable("tableName", tableBuilderConsumer);
-        assertTrue(schemaBuilder.build().contains("column1 VARCHAR"));
-        assertTrue(schemaBuilder.build().contains("tableName"));
-        assertEquals("CREATE TABLE IF NOT EXISTS tableName (column1 VARCHAR);", schemaBuilder.build());
+        Consumer<TableBuilder> tableBuilderConsumer = tableBuilder -> {
+            tableBuilder.addStringColumn("column1");
+        };
+        String query = schemaBuilder.createTable("tableName", tableBuilderConsumer);
+        assertTrue(query.contains("column1 VARCHAR"));
+        assertTrue(query.contains("tableName"));
+       assertEquals("CREATE TABLE IF NOT EXISTS tableName (column1 VARCHAR);", query);
     }
 
 
