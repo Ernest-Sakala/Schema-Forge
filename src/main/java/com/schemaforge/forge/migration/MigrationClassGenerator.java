@@ -13,59 +13,60 @@ public class MigrationClassGenerator {
 
 
     public void generateMigrationClass(Class<?> entityClass) {
-        String packageName = "forge.database.migrations";
-        String className = "Create" + entityClass.getSimpleName() + "Migration";
-        String fileName = className + ".java";
-
-        StringBuilder code = new StringBuilder();
-        code.append("package ").append(packageName).append(";\n\n");
-        code.append("import com.schemaforge.forge.migration.Migration;\n");
-        code.append("import org.springframework.stereotype.Component;\n");
-        code.append("import java.util.HashMap;\n");
-        code.append("import java.util.Map;\n");
-        code.append("import com.schemaforge.forge.schema.SchemaBuilder;\n\n");
-
-        code.append("@Component\n");
-        code.append("public class ").append(className).append(" implements Migration {\n\n");
-        code.append("\t@Override\n");
-        code.append("\tpublic String forgeSchema() {\n");
-
-        String tableName = "";
-
-        if (entityClass.isAnnotationPresent(Table.class)) {
-            Table tableAnnotation = entityClass.getAnnotation(Table.class);
-            tableName = tableAnnotation.name().toUpperCase();
-            System.out.println("Table Name: " + tableName);
-        } else {
-            System.out.println("Class is not annotated with @Table");
-        }
-
-        if(tableName.equals("")) {
-            code.append("\t\treturn new SchemaBuilder().createTable(\"ENTER TABLE NAME\", table -> {\n");
-            addColumMethods(entityClass, code);
-        }else {
-            code.append("\t\treturn new SchemaBuilder().createTable(\"");
-            code.append(tableName);
-            code.append("\", table -> {\n");
-            addColumMethods(entityClass, code);
-        }
-
-        code.append("\t\t});\n");
-        code.append("\t}\n\n");
-
-        code.append("\t@Override\n");
-        code.append("\tpublic String revert() {\n");
-
-        if(tableName.equals("")) {
-            code.append("\t\treturn new SchemaBuilder().dropTable(\"").append("ENTER TABLE NAME").append("\").build();\n");
-        }else {
-            code.append("\t\treturn new SchemaBuilder().dropTable(\"").append(tableName).append("\");\n");
-        }
-        code.append("\t}\n");
-        code.append("}\n");
-
-
-        writeToFile("src/main/resources/forge/database/migrations",fileName, code.toString());
+        return;
+//        String packageName = "forge.database.migrations";
+//        String className = "Create" + entityClass.getSimpleName() + "Migration";
+//        String fileName = className + ".java";
+//
+//        StringBuilder code = new StringBuilder();
+//        code.append("package ").append(packageName).append(";\n\n");
+//        code.append("import com.schemaforge.forge.migration.Migration;\n");
+//        code.append("import org.springframework.stereotype.Component;\n");
+//        code.append("import java.util.HashMap;\n");
+//        code.append("import java.util.Map;\n");
+//        code.append("import com.schemaforge.forge.schema.SchemaBuilder;\n\n");
+//
+//        code.append("@Component\n");
+//        code.append("public class ").append(className).append(" implements Migration {\n\n");
+//        code.append("\t@Override\n");
+//        code.append("\tpublic String forgeSchema() {\n");
+//
+//        String tableName = "";
+//
+//        if (entityClass.isAnnotationPresent(Table.class)) {
+//            Table tableAnnotation = entityClass.getAnnotation(Table.class);
+//            tableName = tableAnnotation.name().toUpperCase();
+//            System.out.println("Table Name: " + tableName);
+//        } else {
+//            System.out.println("Class is not annotated with @Table");
+//        }
+//
+//        if(tableName.equals("")) {
+//            code.append("\t\treturn new SchemaBuilder().createTable(\"ENTER TABLE NAME\", table -> {\n");
+//            addColumMethods(entityClass, code);
+//        }else {
+//            code.append("\t\treturn new SchemaBuilder().createTable(\"");
+//            code.append(tableName);
+//            code.append("\", table -> {\n");
+//            addColumMethods(entityClass, code);
+//        }
+//
+//        code.append("\t\t});\n");
+//        code.append("\t}\n\n");
+//
+//        code.append("\t@Override\n");
+//        code.append("\tpublic String revert() {\n");
+//
+//        if(tableName.equals("")) {
+//            code.append("\t\treturn new SchemaBuilder().dropTable(\"").append("ENTER TABLE NAME").append("\").build();\n");
+//        }else {
+//            code.append("\t\treturn new SchemaBuilder().dropTable(\"").append(tableName).append("\");\n");
+//        }
+//        code.append("\t}\n");
+//        code.append("}\n");
+//
+//
+//        writeToFile("src/main/resources/forge/database/migrations",fileName, code.toString());
     }
 
     private void addColumMethods(Class<?> entityClass, StringBuilder code) {

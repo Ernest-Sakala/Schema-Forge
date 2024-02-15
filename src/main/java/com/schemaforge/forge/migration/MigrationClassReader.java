@@ -40,7 +40,9 @@ class MigrationClassReader {
     public List<MigrationContainer> getMigrationClasses() {
         List<MigrationContainer> migrationClasses = new ArrayList<>();
 
+
         try {
+
             String migrationPath = "forge/database/migrations";
             URL url = getClass().getClassLoader().getResource(migrationPath);
 

@@ -38,4 +38,14 @@ public class SchemaForgeClientProperties {
     public void setDatabase(String database) {
         this.database = database;
     }
+
+
+    @Override
+    public String toString() {
+        return "SchemaForgeClientProperties{" +
+                "command='" + command + '\'' +
+                ", value='" + value + '\'' +
+                ", database='" + database + '\'' +
+                '}';
+    }
 }

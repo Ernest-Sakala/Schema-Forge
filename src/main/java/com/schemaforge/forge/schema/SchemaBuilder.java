@@ -8,16 +8,18 @@ import org.springframework.stereotype.Component;
 import java.util.function.Consumer;
 
 @Component
-public class SchemaBuilder{
+public class SchemaBuilder {
 
     private static final Logger log = LoggerFactory.getLogger(SchemaBuilder.class);
 
     private StringBuilder schema;
 
+
     @Autowired
-    private Schema schemaFactory;
+    private SchemaFactory schemaFactory;
 
     public SchemaBuilder() {
+
     }
 
 
@@ -29,7 +31,9 @@ public class SchemaBuilder{
     public String createTable(String tableName, Consumer<TableBuilder> columnDefinitions) {
         TableBuilder tableBuilder = new TableBuilder();
         columnDefinitions.accept(tableBuilder);
-        String query = schemaFactory.createTable(tableName,tableBuilder);
+
+        //String query = "";
+        String query = schemaFactory.getDatabaseType().createTable(tableName,tableBuilder);
         log.info("CREATE TABLE SCHEMA FORGE >>>>" + query);
         return query;
     }
