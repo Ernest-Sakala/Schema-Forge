@@ -3,8 +3,9 @@ package com.schemaforge.forge.schema;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.function.Consumer;
 
 @Component
@@ -13,13 +14,10 @@ public class SchemaBuilder {
     private static final Logger log = LoggerFactory.getLogger(SchemaBuilder.class);
 
     private StringBuilder schema;
-
-
-    @Autowired
-    private SchemaFactory schemaFactory;
+    private Schema schemaType;
 
     public SchemaBuilder() {
-
+        schemaType = this.getDatabaseType();
     }
 
 
@@ -31,11 +29,10 @@ public class SchemaBuilder {
     public String createTable(String tableName, Consumer<TableBuilder> columnDefinitions) {
         TableBuilder tableBuilder = new TableBuilder();
         columnDefinitions.accept(tableBuilder);
-
-        //String query = "";
-        String query = schemaFactory.getDatabaseType().createTable(tableName,tableBuilder);
-        log.info("CREATE TABLE SCHEMA FORGE >>>>" + query);
+        String query = schemaType.createTable(tableName,tableBuilder);
+        log.info("CREATE TABLE QUERY >>>>" + query);
         return query;
+
     }
 
 
@@ -89,6 +86,53 @@ public class SchemaBuilder {
         schema.append(tableBuilder.addColumns()).append(";");
         return this;
     }
+
+
+    public Schema getDatabaseType() {
+        try {
+            StringBuilder jsonContent = new StringBuilder();
+            FileReader reader = new FileReader("src/main/resources/forge.json");
+
+            int character;
+            while ((character = reader.read()) != -1) {
+                jsonContent.append((char) character);
+            }
+            reader.close();
+
+            String jsonString = jsonContent.toString();
+
+            String database = extractValue(jsonString, "database");
+
+            if(database.isEmpty()){
+                throw new IllegalArgumentException("Schema forge database type should not be empty");
+            }
+
+            Schema schema = null;
+
+            if(database.equalsIgnoreCase("MYSQL")){
+                log.info("MYSQL SCHEMA TO BE USED");
+                schema = new MySQLSchema();
+            }else if(database.equalsIgnoreCase("POSTGRESQL")){
+                log.info("POSTGRESQL SCHEMA TO BE USED");
+                schema = new PostgresSQLSchema();
+            }
+
+            return schema;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+
+
+
+    }
+
+    private String extractValue(String jsonString, String key) {
+        int startIndex = jsonString.indexOf("\"" + key + "\"") + key.length() + 4;
+        int endIndex = jsonString.indexOf("\"", startIndex);
+        return jsonString.substring(startIndex, endIndex);
+    }
+
 
     public String build() {
         return schema.toString();
