@@ -49,6 +49,8 @@ class MigrationManager {
 
             }else if(schemaForgeClientProperties.getCommand().equals(SchemaForgeCommands.MIGRATE)) {
 
+                log.info("SCHEMA FORGE <<<<<<<<<<<<<<<<<<Schema forge migrating Migration >>>>>>>>>>>>>>>>> " + migration.getMigrationName() + " " + query);
+
                 query =  migration.getMigration().forgeSchema();
             }
 

@@ -2,8 +2,10 @@ package com.schemaforge.forge.schema;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.net.URL;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class TableBuilderTest {
 
@@ -13,6 +15,16 @@ class TableBuilderTest {
     @BeforeEach
     void setUp() {
         tableBuilder = new TableBuilder();
+    }
+
+    @Test
+    void testFilePath(){
+//        String migrationPath = "forge/database/migrations";
+//        URL url = getClass().getClassLoader().getResource(migrationPath);
+//
+//        assert url != null;
+//        assertEquals(migrationPath, url.getPath());
+
     }
 
     @Test

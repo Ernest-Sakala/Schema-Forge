@@ -1,5 +1,6 @@
 package com.schemaforge.forge.database;
 
+import com.schemaforge.forge.config.SchemaForgeClientProperties;
 import com.schemaforge.forge.schema.Schema;
 import com.schemaforge.forge.schema.MySQLSchema;
 import com.schemaforge.forge.schema.PostgresSQLSchema;
@@ -12,26 +13,10 @@ import java.util.Map;
 @Component
 public class DatabaseConnection {
 
-    private String url;
-    private String username;
-    private String password;
+    private final SchemaForgeClientProperties schemaForgeClientProperties;
 
-    private JdbcTemplate jdbcTemplate;
-
-
-    public DatabaseConnection() {
-    }
-
-    public void setConnection(Map<String , String> databaseDetails){
-        url = databaseDetails.get("URL");
-        username = databaseDetails.get("USERNAME");
-        password = databaseDetails.get("PASSWORD");
-    }
-
-    public void setConnection(ConnectionProperties databaseDetails){
-        url = databaseDetails.getUrl();
-        username = databaseDetails.getUsername();
-        password = databaseDetails.getPassword();
+    public DatabaseConnection(SchemaForgeClientProperties schemaForgeClientProperties) {
+        this.schemaForgeClientProperties = schemaForgeClientProperties;
     }
 
 
@@ -39,15 +24,15 @@ public class DatabaseConnection {
 
         DataSourceBuilder<?> dataSourceBuilder = DataSourceBuilder.create();
 
-        if(url.contains("mysql")){
+        if(schemaForgeClientProperties.getUrl().contains("mysql")){
             dataSourceBuilder.driverClassName("com.mysql.cj.jdbc.Driver");
-        }else if(url.contains("postgresql")){
+        }else if(schemaForgeClientProperties.getUrl().contains("postgresql")){
             dataSourceBuilder.driverClassName("org.postgresql.Driver");
         }
 
-        dataSourceBuilder.url(url);
-        dataSourceBuilder.username(username);
-        dataSourceBuilder.password(password);
+        dataSourceBuilder.url(schemaForgeClientProperties.getUrl());
+        dataSourceBuilder.username(schemaForgeClientProperties.getUsername());
+        dataSourceBuilder.password(schemaForgeClientProperties.getPassword());
         return dataSourceBuilder.build();
     }
 
@@ -56,9 +41,9 @@ public class DatabaseConnection {
     public Schema getDatabaseType(){
 
         Schema database = null;
-        if(url.contains("mysql")){
+        if(schemaForgeClientProperties.getUrl().contains("mysql")){
             database = new MySQLSchema();
-        }else if(url.contains("postgresql")){
+        }else if(schemaForgeClientProperties.getUrl().contains("postgresql")){
             database = new PostgresSQLSchema();
         }
 

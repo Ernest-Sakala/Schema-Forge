@@ -10,10 +10,16 @@ public class SchemaFactory {
 
     private static final Logger log = LoggerFactory.getLogger(SchemaBuilder.class);
 
+    private final MySQLSchema mySQLSchema;
+
+    private final PostgresSQLSchema postgresSQLSchema;
+
 
     private final SchemaForgeClientProperties schemaForgeClientProperties;
 
-    public SchemaFactory(SchemaForgeClientProperties schemaForgeClientProperties) {
+    public SchemaFactory(MySQLSchema mySQLSchema, PostgresSQLSchema postgresSQLSchema, SchemaForgeClientProperties schemaForgeClientProperties) {
+        this.mySQLSchema = mySQLSchema;
+        this.postgresSQLSchema = postgresSQLSchema;
         this.schemaForgeClientProperties = schemaForgeClientProperties;
     }
 
@@ -30,9 +36,9 @@ public class SchemaFactory {
         Schema schema = null;
 
         if(database.equalsIgnoreCase("MYSQL")){
-            schema = new MySQLSchema();
+            schema = this.mySQLSchema;
         }else if(database.equalsIgnoreCase("POSTGRESQL")){
-            schema = new PostgresSQLSchema();
+            schema = this.postgresSQLSchema;
         }
 
         return schema;

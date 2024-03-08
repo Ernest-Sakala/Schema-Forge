@@ -14,7 +14,9 @@ import org.springframework.context.annotation.Configuration;
             "com.schemaforge.forge.repository",
             "com.schemaforge.forge.model",
             "com.schemaforge.forge.schema",
-            "com.schemaforge.forge.config"
+            "com.schemaforge.forge.config",
+            "forge.database.migrations",
+            "classpath:forge.database.migrations"
         })
 public class ConfigureDependencyInjection {
 }

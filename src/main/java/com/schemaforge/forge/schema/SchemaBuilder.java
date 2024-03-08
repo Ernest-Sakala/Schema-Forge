@@ -1,10 +1,17 @@
 package com.schemaforge.forge.schema;
 
 
+import com.schemaforge.forge.config.SchemaForgeClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 import java.util.function.Consumer;
 
 @Component
@@ -16,10 +23,15 @@ public class SchemaBuilder {
 
 
     @Autowired
-    private SchemaFactory schemaFactory;
+    private final SchemaFactory schemaFactory;
 
-    public SchemaBuilder() {
+    private final SchemaForgeClientProperties schemaForgeClientProperties;
 
+
+
+    public SchemaBuilder(SchemaFactory schemaFactory, SchemaForgeClientProperties schemaForgeClientProperties) {
+        this.schemaFactory = schemaFactory;
+        this.schemaForgeClientProperties = schemaForgeClientProperties;
     }
 
 
@@ -31,13 +43,10 @@ public class SchemaBuilder {
     public String createTable(String tableName, Consumer<TableBuilder> columnDefinitions) {
         TableBuilder tableBuilder = new TableBuilder();
         columnDefinitions.accept(tableBuilder);
-
-        //String query = "";
-        String query = schemaFactory.getDatabaseType().createTable(tableName,tableBuilder);
+        String query =  new PostgresSQLSchema().createTable(tableName,tableBuilder);
         log.info("CREATE TABLE SCHEMA FORGE >>>>" + query);
         return query;
     }
-
 
 
     public SchemaBuilder renameTable(String oldTableName, String newTableName) {
