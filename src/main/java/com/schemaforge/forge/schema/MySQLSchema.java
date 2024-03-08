@@ -1,13 +1,18 @@
 package com.schemaforge.forge.schema;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
 import java.util.function.Consumer;
 
 @Component
 public class MySQLSchema implements Schema {
-    
-    private StringBuilder schema;
+
+    private static final Logger log = LoggerFactory.getLogger(SchemaBuilder.class);
+
+    public MySQLSchema() {
+
+    }
 
     @Override
     public String createTable(String tableName, TableBuilder tableBuilder) {

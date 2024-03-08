@@ -10,7 +10,6 @@ public class SchemaUtil {
         schema = new StringBuilder();
         schema.append("CREATE TABLE IF NOT EXISTS ").append(tableName).append(" (");
 
-
         for (Map.Entry<String, String> entry : tableBuilder.columnDefinitions.entrySet()) {
             schema.append(entry.getKey()).append(" ").append(entry.getValue()).append(", ");
         }
