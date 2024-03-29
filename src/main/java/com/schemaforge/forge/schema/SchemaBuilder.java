@@ -14,7 +14,7 @@ public class SchemaBuilder {
     private static final Logger log = LoggerFactory.getLogger(SchemaBuilder.class);
 
     private StringBuilder schema;
-    private Schema schemaType;
+    private final Schema schemaType;
 
     public SchemaBuilder() {
         schemaType = this.getDatabaseType();
@@ -88,9 +88,10 @@ public class SchemaBuilder {
     }
 
 
-    public Schema getDatabaseType() {
+    private Schema getDatabaseType() {
         try {
             StringBuilder jsonContent = new StringBuilder();
+
             FileReader reader = new FileReader("src/main/resources/forge.json");
 
             int character;
@@ -121,10 +122,6 @@ public class SchemaBuilder {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-
-
-
     }
 
     private String extractValue(String jsonString, String key) {
