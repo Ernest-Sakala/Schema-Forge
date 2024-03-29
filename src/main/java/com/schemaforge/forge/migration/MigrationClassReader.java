@@ -1,16 +1,21 @@
 package com.schemaforge.forge.migration;
 
 
-import com.schemaforge.forge.config.*;
+import com.schemaforge.forge.config.SchemaForgeAnonymous;
+import com.schemaforge.forge.config.SchemaForgeClientProperties;
+import com.schemaforge.forge.config.SchemaForgeCommandValue;
+import com.schemaforge.forge.config.SchemaForgeCommands;
 import com.schemaforge.forge.exception.MigrationDoesNotExistException;
 import com.schemaforge.forge.model.SchemaForgeMigrationHistoryModel;
 import com.schemaforge.forge.service.SchemaForeMigrationHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
+
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 import javax.transaction.Transactional;
@@ -18,12 +23,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
-import org.springframework.beans.factory.support.RootBeanDefinition;
 
 @Component
 class MigrationClassReader {
