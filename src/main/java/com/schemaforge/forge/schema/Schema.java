@@ -7,8 +7,8 @@ import java.util.function.Consumer;
 public interface Schema {
 
     String createTable(String tableName, TableBuilder tableBuilder);
-    SchemaBuilder renameTable(String oldTableName, String newTableName);
-    SchemaBuilder dropTable(String tableName);
+    String renameTable(String oldTableName, String newTableName);
+    String dropTable(String tableName);
     SchemaBuilder addTableColumns(String tableName, Consumer<TableBuilder> columnDefinitions);
     SchemaBuilder dropColumns(String tableName, Consumer<TableBuilder> columnDefinitions);
     SchemaBuilder addTableColumn(String tableName, Consumer<TableBuilder> columnDefinitions);

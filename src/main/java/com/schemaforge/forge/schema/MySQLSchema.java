@@ -21,13 +21,13 @@ public class MySQLSchema implements Schema {
 
 
     @Override
-    public SchemaBuilder renameTable(String oldTableName, String newTableName) {
-        return null;
+    public String renameTable(String oldTableName, String newTableName) {
+        return SchemaUtil.renameTable(oldTableName, newTableName);
     }
 
     @Override
-    public SchemaBuilder dropTable(String tableName) {
-        return null;
+    public String dropTable(String tableName) {
+        return SchemaUtil.dropTable(tableName);
     }
 
     @Override

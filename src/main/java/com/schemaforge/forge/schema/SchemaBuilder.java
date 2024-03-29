@@ -29,35 +29,26 @@ public class SchemaBuilder {
     public String createTable(String tableName, Consumer<TableBuilder> columnDefinitions) {
         TableBuilder tableBuilder = new TableBuilder();
         columnDefinitions.accept(tableBuilder);
-        String query = schemaType.createTable(tableName,tableBuilder);
-        log.info("CREATE TABLE QUERY >>>>" + query);
-        return query;
-
+        return schemaType.createTable(tableName,tableBuilder);
     }
 
 
 
-    public SchemaBuilder renameTable(String oldTableName, String newTableName) {
-        schema = new StringBuilder();
-        schema.append("ALTER TABLE IF NOT EXISTS ").append(oldTableName).append(" RENAME TO ").append(newTableName);
-        log.info("CREATE TABLE SCHEMA FORGE >>>>" + schema);
-        return this;
+    public String renameTable(String oldTableName, String newTableName) {
+        return schemaType.renameTable(newTableName, oldTableName);
     }
 
 
 
     public String dropTable(String tableName) {
-        schema = new StringBuilder();
-        schema.append("DROP TABLE IF EXISTS ").append(tableName).append(" CASCADE;");
-        log.info("DROP TABLE SCHEMA FORGE >>>>" + schema);
-        return schema.toString();
+        return schemaType.dropTable(tableName);
     }
 
 
 
     public SchemaBuilder addTableColumns(String tableName, Consumer<TableBuilder> columnDefinitions) {
         schema = new StringBuilder();
-        schema.append("ALTER TABLE IF EXITS ").append(tableName).append(" ADD COLUMN").append(" ");
+        schema.append("ALTER TABLE IF EXIST ").append(tableName).append(" ADD COLUMN").append(" ");
         TableBuilder tableBuilder = new TableBuilder();
         columnDefinitions.accept(tableBuilder);
         schema.append(tableBuilder.addColumns()).append(";");

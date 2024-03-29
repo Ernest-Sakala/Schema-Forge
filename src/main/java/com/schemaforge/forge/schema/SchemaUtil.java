@@ -22,4 +22,16 @@ public class SchemaUtil {
 
         return schema.toString();
     }
+
+    public static String dropTable(String  tableName){
+        schema = new StringBuilder();
+        schema.append("DROP TABLE IF EXISTS ").append(tableName).append(" CASCADE;");
+        return schema.toString();
+    }
+
+    public static String renameTable(String oldTableName, String newTableName){
+        schema = new StringBuilder();
+        schema.append("ALTER TABLE IF EXISTS ").append(oldTableName).append(" RENAME TO ").append(newTableName);
+        return schema.toString();
+    }
 }
