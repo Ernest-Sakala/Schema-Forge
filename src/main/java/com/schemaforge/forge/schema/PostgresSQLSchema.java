@@ -10,7 +10,6 @@ public class PostgresSQLSchema implements Schema {
 
     private static final Logger log = LoggerFactory.getLogger(SchemaBuilder.class);
 
-
     private StringBuilder schema;
 
     public PostgresSQLSchema() {
@@ -32,17 +31,12 @@ public class PostgresSQLSchema implements Schema {
     }
 
     @Override
-    public SchemaBuilder addTableColumns(String tableName, Consumer<TableBuilder> columnDefinitions) {
-        return null;
+    public String addTableColumns(String tableName, TableBuilder columnDefinitions) {
+        return SchemaUtil.addTableColumns(tableName,columnDefinitions);
     }
 
     @Override
     public SchemaBuilder dropColumns(String tableName, Consumer<TableBuilder> columnDefinitions) {
-        return null;
-    }
-
-    @Override
-    public SchemaBuilder addTableColumn(String tableName, Consumer<TableBuilder> columnDefinitions) {
         return null;
     }
 

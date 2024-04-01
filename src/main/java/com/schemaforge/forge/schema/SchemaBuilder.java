@@ -46,14 +46,10 @@ public class SchemaBuilder {
 
 
 
-    public SchemaBuilder addTableColumns(String tableName, Consumer<TableBuilder> columnDefinitions) {
-        schema = new StringBuilder();
-        schema.append("ALTER TABLE IF EXIST ").append(tableName).append(" ADD COLUMN").append(" ");
+    public String addTableColumns(String tableName, Consumer<TableBuilder> columnDefinitions) {
         TableBuilder tableBuilder = new TableBuilder();
         columnDefinitions.accept(tableBuilder);
-        schema.append(tableBuilder.addColumns()).append(";");
-        log.info("ALTER TABLE SCHEMA FORGE >>>>" + schema);
-        return this;
+        return schemaType.addTableColumns(tableName, tableBuilder);
     }
 
 
@@ -64,17 +60,6 @@ public class SchemaBuilder {
         columnDefinitions.accept(tableBuilder);
         schema.append(tableBuilder.dropColumns()).append(";");
         log.info("ALTER TABLE SCHEMA FORGE >>>>" + schema);
-        return this;
-    }
-
-
-
-    public SchemaBuilder addTableColumn(String tableName, Consumer<TableBuilder> columnDefinitions) {
-        schema = new StringBuilder();
-        schema.append("ALTER TABLE ADD COLUMN ").append(tableName).append(" ");
-        TableBuilder tableBuilder = new TableBuilder();
-        columnDefinitions.accept(tableBuilder);
-        schema.append(tableBuilder.addColumns()).append(";");
         return this;
     }
 

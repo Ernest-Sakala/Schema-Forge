@@ -31,8 +31,8 @@ public class MySQLSchema implements Schema {
     }
 
     @Override
-    public SchemaBuilder addTableColumns(String tableName, Consumer<TableBuilder> columnDefinitions) {
-        return null;
+    public String addTableColumns(String tableName, TableBuilder columnDefinitions) {
+        return SchemaUtil.addTableColumns(tableName,columnDefinitions);
     }
 
     @Override
@@ -40,10 +40,6 @@ public class MySQLSchema implements Schema {
         return null;
     }
 
-    @Override
-    public SchemaBuilder addTableColumn(String tableName, Consumer<TableBuilder> columnDefinitions) {
-        return null;
-    }
 
     @Override
     public String build() {

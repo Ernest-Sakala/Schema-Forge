@@ -16,5 +16,5 @@ public interface TableSchema {
 
     TableBuilder.ColumnBuilder addJsonbColumn(String columnName);
 
-    TableBuilder.ColumnBuilder addUuidbColumn(String columnName);
+    TableBuilder.ColumnBuilder addUuidColumn(String columnName);
 }

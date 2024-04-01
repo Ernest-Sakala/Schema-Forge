@@ -23,6 +23,21 @@ public class SchemaUtil {
         return schema.toString();
     }
 
+    public static String addTableColumns(String tableName, TableBuilder tableBuilder){
+        schema = new StringBuilder();
+        schema.append("ALTER TABLE IF EXIST ").append(tableName).append(" ADD COLUMN").append(" ");
+
+        for (Map.Entry<String, String> entry : tableBuilder.columnDefinitions.entrySet()) {
+            schema.append(entry.getKey()).append(" ").append(entry.getValue()).append(", ");
+        }
+        if (schema.length() > 2) {
+            schema.setLength(schema.length() - 2);
+        }
+
+        return schema.toString();
+    }
+
+
     public static String dropTable(String  tableName){
         schema = new StringBuilder();
         schema.append("DROP TABLE IF EXISTS ").append(tableName).append(" CASCADE;");

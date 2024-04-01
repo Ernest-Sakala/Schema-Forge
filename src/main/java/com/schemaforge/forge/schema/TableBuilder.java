@@ -92,7 +92,7 @@ public class TableBuilder implements TableSchema {
      * @return
      */
     @Override
-    public ColumnBuilder addUuidbColumn(String columnName) {
+    public ColumnBuilder addUuidColumn(String columnName) {
         checkColumnValidity(columnName);
         columnBuilder.addUuidColumn(columnName);
         return this.columnBuilder;
