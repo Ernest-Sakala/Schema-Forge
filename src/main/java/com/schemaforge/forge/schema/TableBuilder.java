@@ -1,22 +1,20 @@
 package com.schemaforge.forge.schema;
 
 
-import com.schemaforge.forge.config.SchemaForgeClientProperties;
 import com.schemaforge.forge.database.DatabaseDataTypes;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import java.util.*;
 
 @Component
-public class TableBuilder {
+public class TableBuilder implements TableSchema {
     protected Map<String, String> columnDefinitions;
 
     private Stack<String> columnNamesStack;
 
     private List<String> columnNames;
 
-
     private ColumnBuilder columnBuilder;
+
     public TableBuilder() {
        this.columnDefinitions = new HashMap<>();
        this.columnNames = new ArrayList<>();
@@ -50,13 +48,74 @@ public class TableBuilder {
     }
 
 
-
-
     public ColumnBuilder addStringColumn(String columnName) {
         checkColumnValidity(columnName);
         columnBuilder.addStringColumn(columnName);
         return this.columnBuilder;
     }
+
+    /**
+     * @param columnName
+     * @return
+     */
+    @Override
+    public ColumnBuilder addEnumColumn(String columnName,String [] enumNames) {
+        checkColumnValidity(columnName);
+        columnBuilder.addEnumColumn(columnName,enumNames);
+        return this.columnBuilder;
+    }
+
+    /**
+     * @param columnName
+     * @return
+     */
+    @Override
+    public ColumnBuilder addJsonColumn(String columnName) {
+        checkColumnValidity(columnName);
+        columnBuilder.addJsonColumn(columnName);
+        return this.columnBuilder;
+    }
+
+    /**
+     * @param columnName
+     * @return
+     */
+    @Override
+    public ColumnBuilder addJsonbColumn(String columnName) {
+        checkColumnValidity(columnName);
+        columnBuilder.addJsonbColumn(columnName);
+        return this.columnBuilder;
+    }
+
+    /**
+     * @param columnName
+     * @return
+     */
+    @Override
+    public ColumnBuilder addUuidbColumn(String columnName) {
+        checkColumnValidity(columnName);
+        columnBuilder.addUuidColumn(columnName);
+        return this.columnBuilder;
+    }
+
+    public ColumnBuilder addStringColumn(String columnName, int size) {
+        checkColumnValidity(columnName);
+        columnBuilder.addStringColumn(columnName, size);
+        return this.columnBuilder;
+    }
+
+    public ColumnBuilder addCharColumn(String columnName) {
+        checkColumnValidity(columnName);
+        columnBuilder.addCharColumn(columnName);
+        return this.columnBuilder;
+    }
+
+    public ColumnBuilder addCharColumn(String columnName, int size) {
+        checkColumnValidity(columnName);
+        columnBuilder.addCharColumn(columnName, size);
+        return this.columnBuilder;
+    }
+
 
     public ColumnBuilder addBigIntColumn(String columnName) {
         checkColumnValidity(columnName);
@@ -191,10 +250,29 @@ public class TableBuilder {
 
     }
 
+    /**
+     * @param columnName
+     */
+    @Override
+    public ColumnBuilder addTextColumn(String columnName) {
+        checkColumnValidity(columnName);
+        columnBuilder.addTextColumn(columnName);
+        return this.columnBuilder;
+    }
+
+    /**
+     * @param columnName
+     * @return ColumnBuilder
+     */
+    @Override
+    public ColumnBuilder addFloatColumn(String columnName) {
+        checkColumnValidity(columnName);
+        columnBuilder.addFloatColumn(columnName);
+        return this.columnBuilder;
+    }
 
 
-
-    public class ColumnBuilder {
+    public class ColumnBuilder implements ColumnSchema {
         private Stack<String> columnOrder;
 
         public ColumnBuilder() {
@@ -251,6 +329,22 @@ public class TableBuilder {
             columnOrder.push(columnName);
         }
 
+
+        private void addStringColumn(String columnName, int size) {
+            columnDefinitions.put(columnName, DatabaseDataTypes.VARCHAR + " (" + size + ") " );
+            columnOrder.push(columnName);
+        }
+
+        private void addCharColumn(String columnName) {
+            columnDefinitions.put(columnName, DatabaseDataTypes.CHAR);
+            columnOrder.push(columnName);
+        }
+
+        private void addCharColumn(String columnName, int size) {
+            columnDefinitions.put(columnName, DatabaseDataTypes.CHAR + " (" + size + ") " );
+            columnOrder.push(columnName);
+        }
+
         private void addBigIntColumn(String columnName) {
             columnDefinitions.put(columnName, DatabaseDataTypes.BIGINT);
             columnOrder.push(columnName);
@@ -264,6 +358,11 @@ public class TableBuilder {
 
 
         private void addTimeStampColumn(String columnName) {
+            columnDefinitions.put(columnName, DatabaseDataTypes.TIMESTAMP);
+            columnOrder.push(columnName);
+        }
+
+        private void addBinaryColumn(String columnName) {
             columnDefinitions.put(columnName, DatabaseDataTypes.TIMESTAMP);
             columnOrder.push(columnName);
         }
@@ -293,7 +392,72 @@ public class TableBuilder {
         }
 
 
+        /**
+         * @param columnName
+         */
+        @Override
+        public void addTextColumn(String columnName) {
+            columnDefinitions.put(columnName, DatabaseDataTypes.TEXT);
+            columnOrder.push(columnName);
+        }
 
+        /**
+         * @param columnName
+         */
+        @Override
+        public void addFloatColumn(String columnName) {
+            columnDefinitions.put(columnName, DatabaseDataTypes.FLOAT);
+            columnOrder.push(columnName);
+        }
+
+        /**
+         * @param columnName
+         */
+        @Override
+        public void addEnumColumn(String columnName,  String [] enumNames) {
+
+            StringBuilder name = new StringBuilder(DatabaseDataTypes.ENUM + "(");
+
+            for(int x = 0; x < enumNames.length; x++){
+               name.append("\'").append(enumNames[x]).append("\'").append(",");
+            }
+
+            if (name.length() > 1) {
+                name.setLength(name.length() - 1);
+            }
+
+            name.append(")");
+
+            columnDefinitions.put(columnName, name.toString());
+            columnOrder.push(columnName);
+        }
+
+        /**
+         * @param columnName
+         */
+        @Override
+        public void addJsonColumn(String columnName) {
+            columnDefinitions.put(columnName, DatabaseDataTypes.JSON);
+            columnOrder.push(columnName);
+        }
+
+        /**
+         * @param columnName
+         */
+        @Override
+        public void addJsonbColumn(String columnName) {
+            columnDefinitions.put(columnName, DatabaseDataTypes.JSONB);
+            columnOrder.push(columnName);
+        }
+
+        /**
+         * @param columnName
+         */
+        @Override
+        public void addUuidColumn(String columnName) {
+            columnDefinitions.put(columnName, DatabaseDataTypes.UUID);
+            columnOrder.push(columnName);
+        }
     }
 
 

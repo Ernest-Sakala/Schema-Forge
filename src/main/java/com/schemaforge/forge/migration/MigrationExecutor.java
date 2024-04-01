@@ -13,7 +13,7 @@ import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 
 @Component
-class MigrationExecutor {
+public class MigrationExecutor {
 
     private static Logger log = LoggerFactory.getLogger(MigrationExecutor.class);
 

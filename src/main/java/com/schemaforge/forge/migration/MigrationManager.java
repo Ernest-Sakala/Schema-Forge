@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-class MigrationManager {
+public class MigrationManager {
 
     private static Logger log = LoggerFactory.getLogger(MigrationManager.class);
 
