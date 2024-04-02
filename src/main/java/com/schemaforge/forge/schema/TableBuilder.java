@@ -154,63 +154,6 @@ public class TableBuilder implements TableSchema {
         return columnDefinitions.toString();
     }
 
-    protected String renameTable() {
-        StringBuilder columnDefinitions = new StringBuilder();
-        for (Map.Entry<String, String> entry : this.columnDefinitions.entrySet()) {
-            columnDefinitions.append(entry.getKey()).append(" ").append(entry.getValue()).append(", ");
-        }
-        if (columnDefinitions.length() > 2) {
-            columnDefinitions.setLength(columnDefinitions.length() - 2);
-        }
-        return columnDefinitions.toString();
-    }
-
-
-
-    protected String addTableColumns() {
-        StringBuilder columnDefinitions = new StringBuilder();
-        for (Map.Entry<String, String> entry : this.columnDefinitions.entrySet()) {
-            columnDefinitions.append(entry.getKey()).append(" ").append(entry.getValue()).append(", ");
-        }
-        if (columnDefinitions.length() > 2) {
-            columnDefinitions.setLength(columnDefinitions.length() - 2);
-        }
-        return columnDefinitions.toString();
-    }
-
-
-
-    protected String addColumns() {
-        if (columnDefinitions.isEmpty()) {
-            throw new IllegalStateException("No columns defined for table.");
-        }
-
-        StringBuilder sqlStatement = new StringBuilder();
-
-//        // Check if table already exists
-
-        // Add column definitions
-        for (Map.Entry<String, String> entry : columnDefinitions.entrySet()) {
-            sqlStatement.append(entry.getKey()).append(" ").append(entry.getValue()).append(", ");
-        }
-
-         sqlStatement.setLength(sqlStatement.length() - 2);
-
-        return sqlStatement.toString();
-    }
-
-
-    // Method to add a single column to an existing or new table
-    public String addColumn() {
-
-        StringBuilder sqlStatement = new StringBuilder();
-
-        for (Map.Entry<String, String> entry : columnDefinitions.entrySet()) {
-            sqlStatement.append(entry.getKey()).append(" ").append(entry.getValue()).append(", ");
-        }
-
-        return sqlStatement.toString();
-    }
 
 
     private void checkColumnValidity(String columnName){

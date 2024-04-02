@@ -133,7 +133,7 @@ public class MigrationClassReader {
                     SchemaForgeMigrationHistoryModel schemaForgeMigrationHistoryModel = schemaForeMigrationHistoryService.checkMigrationExists(migrationClassName);
 
                     System.out.println("IS revert migration" + schemaForgeClientProperties.getCommand().trim().equalsIgnoreCase(SchemaForgeCommands.REVERT));
-
+                    System.out.println("Migration Class name " + migrationClassName);
 
                     System.out.println("IS migrating command >>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + schemaForgeClientProperties.getValue().trim().equalsIgnoreCase(SchemaForgeCommandValue.ALL));
 
@@ -144,7 +144,7 @@ public class MigrationClassReader {
                             if(schemaForgeClientProperties.getValue().trim().equals(SchemaForgeCommandValue.ALL)){
                                 migrationClasses.add(migrationContainer);
                                 return true;
-                            } else if(schemaForgeClientProperties.getValue().trim().equals(migrationClassName)){
+                            } else if((schemaForgeClientProperties.getValue().trim()+SchemaForgeAnonymous.JAVA_EXTENSION.trim()).equals(migrationClassName.trim())){
                                 if (schemaForgeMigrationHistoryModel.getMigration().equals(migrationClassName)) {
                                     migrationClasses.add(migrationContainer);
                                     return false;
@@ -163,7 +163,7 @@ public class MigrationClassReader {
                         if(schemaForgeClientProperties.getValue().trim().equalsIgnoreCase(SchemaForgeCommandValue.ALL)) {
                             migrationClasses.add(migrationContainer);
                             return true;
-                        }else if(schemaForgeClientProperties.getValue().trim().equals(migrationClassName)){
+                        }else if((schemaForgeClientProperties.getValue().trim()+SchemaForgeAnonymous.JAVA_EXTENSION.trim()).equals(migrationClassName.trim())){
                             migrationClasses.add(migrationContainer);
                             return false;
                         }

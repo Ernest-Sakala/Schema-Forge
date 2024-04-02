@@ -26,7 +26,7 @@ public class SchemaUtil {
 
     public static String addTableColumns(String tableName, TableBuilder tableBuilder){
         schema = new StringBuilder();
-        schema.append("ALTER TABLE IF EXIST ").append(tableName).append(" ADD COLUMN").append(" ");
+        schema.append("ALTER TABLE IF EXISTS ").append(tableName).append(" ADD COLUMN").append(" ");
 
         for (Map.Entry<String, String> entry : tableBuilder.columnDefinitions.entrySet()) {
             schema.append(entry.getKey()).append(" ").append(entry.getValue()).append(", ");
@@ -34,6 +34,8 @@ public class SchemaUtil {
         if (schema.length() > 2) {
             schema.setLength(schema.length() - 2);
         }
+
+        schema.append(";");
 
         return schema.toString();
     }
@@ -55,7 +57,11 @@ public class SchemaUtil {
         schema = new StringBuilder();
         schema.append("ALTER TABLE ").append(tableName).append(" ");
 
-        columnDefinitions.columnNames.forEach(column -> schema.append(" DROP COLUMN IF EXISTS ").append(column).append(", "));
+        if(columnDefinitions.columnNames.isEmpty()){
+            throw new IllegalArgumentException("Columns array is empty");
+        }
+
+        columnDefinitions.columnNames.forEach(column -> schema.append("DROP COLUMN IF EXISTS ").append(column).append(", "));
 
         // Remove the trailing comma and space
         schema.setLength(schema.length() - 2);
