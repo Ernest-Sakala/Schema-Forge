@@ -35,13 +35,14 @@ public class PostgresSQLSchema implements Schema {
         return SchemaUtil.addTableColumns(tableName,columnDefinitions);
     }
 
+    /**
+     * @param tableName
+     * @param columnDefinitions
+     * @return String
+     */
     @Override
-    public SchemaBuilder dropColumns(String tableName, Consumer<TableBuilder> columnDefinitions) {
-        return null;
+    public String dropTableColumns(String tableName, TableBuilder columnDefinitions) {
+        return SchemaUtil.dropTableColumns(tableName,columnDefinitions);
     }
 
-    @Override
-    public String build() {
-        return null;
-    }
 }

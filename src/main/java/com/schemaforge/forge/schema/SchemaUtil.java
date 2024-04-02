@@ -1,6 +1,7 @@
 package com.schemaforge.forge.schema;
 
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class SchemaUtil {
 
@@ -48,5 +49,20 @@ public class SchemaUtil {
         schema = new StringBuilder();
         schema.append("ALTER TABLE IF EXISTS ").append(oldTableName).append(" RENAME TO ").append(newTableName);
         return schema.toString();
+    }
+
+    public static String dropTableColumns(String tableName, TableBuilder columnDefinitions){
+        schema = new StringBuilder();
+        schema.append("ALTER TABLE ").append(tableName).append(" ");
+
+        columnDefinitions.columnNames.forEach(column -> schema.append(" DROP COLUMN IF EXISTS ").append(column).append(", "));
+
+        // Remove the trailing comma and space
+        schema.setLength(schema.length() - 2);
+
+        schema.append(";");
+
+        return schema.toString();
+
     }
 }

@@ -10,6 +10,6 @@ public interface Schema {
     String renameTable(String oldTableName, String newTableName);
     String dropTable(String tableName);
     String addTableColumns(String tableName, TableBuilder columnDefinitions);
-    SchemaBuilder dropColumns(String tableName, Consumer<TableBuilder> columnDefinitions);
-    String build();
+    String dropTableColumns(String tableName, TableBuilder columnDefinitions);
+
 }

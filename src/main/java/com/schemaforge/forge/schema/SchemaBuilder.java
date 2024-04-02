@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.function.Consumer;
 
 @Component
-public class SchemaBuilder {
+public class SchemaBuilder implements SchemaBluePrint{
 
     private static final Logger log = LoggerFactory.getLogger(SchemaBuilder.class);
 
@@ -25,7 +25,7 @@ public class SchemaBuilder {
         return this;
     }
 
-
+    @Override
     public String createTable(String tableName, Consumer<TableBuilder> columnDefinitions) {
         TableBuilder tableBuilder = new TableBuilder();
         columnDefinitions.accept(tableBuilder);
@@ -33,34 +33,30 @@ public class SchemaBuilder {
     }
 
 
-
+    @Override
     public String renameTable(String oldTableName, String newTableName) {
         return schemaType.renameTable(newTableName, oldTableName);
     }
 
 
-
+    @Override
     public String dropTable(String tableName) {
         return schemaType.dropTable(tableName);
     }
 
 
-
+    @Override
     public String addTableColumns(String tableName, Consumer<TableBuilder> columnDefinitions) {
         TableBuilder tableBuilder = new TableBuilder();
         columnDefinitions.accept(tableBuilder);
         return schemaType.addTableColumns(tableName, tableBuilder);
     }
 
-
-    public SchemaBuilder dropColumns(String tableName, Consumer<TableBuilder> columnDefinitions){
-        schema = new StringBuilder();
-        schema.append("ALTER TABLE ").append(tableName).append(" ");
+    @Override
+    public String dropTableColumns(String tableName, Consumer<TableBuilder> columnDefinitions){
         TableBuilder tableBuilder = new TableBuilder();
         columnDefinitions.accept(tableBuilder);
-        schema.append(tableBuilder.dropColumns()).append(";");
-        log.info("ALTER TABLE SCHEMA FORGE >>>>" + schema);
-        return this;
+        return schemaType.dropTableColumns(tableName,tableBuilder);
     }
 
 

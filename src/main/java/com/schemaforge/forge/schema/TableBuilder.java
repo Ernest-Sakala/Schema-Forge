@@ -11,7 +11,7 @@ public class TableBuilder implements TableSchema {
 
     private Stack<String> columnNamesStack;
 
-    private List<String> columnNames;
+    protected List<String> columnNames;
 
     private ColumnBuilder columnBuilder;
 
@@ -137,10 +137,8 @@ public class TableBuilder implements TableSchema {
     }
 
 
-    public TableBuilder columnName(String columnName) {
-        checkColumnValidity(columnName);
-        columnNames.add(columnName);
-        return this;
+    public void addTableColumnNames(String[] columnName) {
+        columnNames.addAll(Arrays.asList(columnName));
     }
 
 
@@ -197,25 +195,6 @@ public class TableBuilder implements TableSchema {
         }
 
          sqlStatement.setLength(sqlStatement.length() - 2);
-
-        return sqlStatement.toString();
-    }
-
-
-
-    protected String dropColumns() {
-        if (columnNames.isEmpty()) {
-            throw new IllegalStateException("No columns defined for table.");
-        }
-
-        StringBuilder sqlStatement = new StringBuilder();
-
-//        // Check if table already exists
-
-        columnNames.forEach(column -> sqlStatement.append(" DROP COLUMN IF EXISTS ").append(column).append(", "));
-
-        // Remove the trailing comma and space
-        sqlStatement.setLength(sqlStatement.length() - 2);
 
         return sqlStatement.toString();
     }
