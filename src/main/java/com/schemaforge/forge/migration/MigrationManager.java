@@ -38,10 +38,12 @@ public class MigrationManager {
 
         log.info("<<<<<<<<<<<<<Running Schema Forge Migrations>>>>>>>>>>>>> : command " + schemaForgeClientProperties.getCommand() + "  value " + schemaForgeClientProperties.getValue());
 
+        boolean running  = false;
 
 
         for (MigrationContainer migration : migrations) {
 
+            running = true;
 
             String query = null;
             if(schemaForgeClientProperties.getCommand().equals(SchemaForgeConstants.REVERT)){
@@ -52,9 +54,11 @@ public class MigrationManager {
 
             }else if(schemaForgeClientProperties.getCommand().equals(SchemaForgeConstants.MIGRATE)) {
 
+                query =  migration.getMigration().forgeSchema();
+
+
                 log.info("SCHEMA FORGE <<<<<<<<<<<<<<<<<<Schema forge migrating Migration >>>>>>>>>>>>>>>>> " + migration.getMigrationName() + " " + query);
 
-                query =  migration.getMigration().forgeSchema();
             }
 
             if(query != null ) {

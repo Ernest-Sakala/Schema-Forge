@@ -7,11 +7,13 @@ import com.schemaforge.forge.util.FileGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.io.IOException;
 
 @Component
@@ -31,12 +33,18 @@ class MigrationInitializer {
 
     private final FileGenerator fileGenerator;
 
+    private boolean shutdownCompleted = false;
+
     private final SchemaForgeClientProperties schemaForgeClientProperties;
 
-    private ApplicationContext context;
+
+    private ConfigurableApplicationContext context;
+    private boolean doneRunning = false;
+
+    private Thread shutdownThread;
 
     @Autowired
-    public MigrationInitializer(MigrationManager migrationManager, MigrationClassReader migrationClassReader, EntityClassScanner entityClassScanner, MigrationClassGenerator migrationClassGenerator, FileGenerator fileGenerator, SchemaForgeClientProperties schemaForgeClientProperties, ApplicationContext context) {
+    public MigrationInitializer(MigrationManager migrationManager, MigrationClassReader migrationClassReader, EntityClassScanner entityClassScanner, MigrationClassGenerator migrationClassGenerator, FileGenerator fileGenerator, SchemaForgeClientProperties schemaForgeClientProperties,  ConfigurableApplicationContext context) {
         this.migrationManager = migrationManager;
         this.migrationClassReader = migrationClassReader;
         this.entityClassScanner = entityClassScanner;
@@ -68,13 +76,51 @@ class MigrationInitializer {
 
         migrationManager.addMigration(migrationClassReader.getMigrationClasses());
 
-        boolean doneRunning = migrationManager.runMigrations();
+        doneRunning = migrationManager.runMigrations();
 
 
-
+        shutdownApplicationAfterRunningMigrations(doneRunning);
     }
 
 
+
+    public void preDestroyClose(){
+        shutdownApplicationAfterRunningMigrations(doneRunning);
+    }
+
+    private void shutdownApplicationAfterRunningMigrations(boolean doneRunning) {
+
+        if(schemaForgeClientProperties.getCommand().equalsIgnoreCase(SchemaForgeConstants.MIGRATE) || schemaForgeClientProperties.getCommand().equalsIgnoreCase(SchemaForgeConstants.REVERT) ) {
+            if (doneRunning) {
+                // Shutdown the application
+
+//                try {
+//                    Thread.sleep(5000); // Adjust the time delay as needed
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//
+//
+//                SpringApplication.exit(context, () -> 0);
+//                new Thread(() -> {
+//                    try {
+//                        Thread.sleep(10000); // Adjust the time delay as needed
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                    try {
+//
+//                        log.info("Migrations completed. Shutting down application gracefully.");
+//                       // SpringApplication.exit(context, () -> 0);
+//
+//                        //System.exit(0);
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+//                }).start();
+            }
+        }
+    }
 
 
     private void banner() {

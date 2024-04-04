@@ -6,6 +6,8 @@ public interface SchemaForgeConstants {
 
     String REVERT = "revert";
 
+    String ALL = "all";
+
     String JAVA_EXTENSION = ".java";
 
 }

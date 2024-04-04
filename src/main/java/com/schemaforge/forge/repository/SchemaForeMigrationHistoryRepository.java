@@ -61,7 +61,6 @@ public class SchemaForeMigrationHistoryRepository {
 
     public SchemaForgeMigrationHistoryModel findByMigration(SchemaForgeMigrationHistoryModel schemaForgeMigrationHistoryModel) {
 
-        System.out.println("Query Migration >>>>>>>>>>>>>>>>>>" + schemaForgeMigrationHistoryModel.getMigration().trim());
 
         String sql = "SELECT * FROM SCHEMA_FORGE_MIGRATION_HISTORY WHERE migration = ?";
 
@@ -97,7 +96,6 @@ public class SchemaForeMigrationHistoryRepository {
 
     public SchemaForgeMigrationHistoryModel findByMigration(String migration) {
 
-        System.out.println("Filtering Migrations to Execute >>>>>>>>>>>>>>>>>>" + migration);
 
         String sql = "SELECT * FROM SCHEMA_FORGE_MIGRATION_HISTORY WHERE migration = ?";
 

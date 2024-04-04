@@ -8,6 +8,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import javax.persistence.Table;
+import javax.transaction.Transactional;
 import java.lang.reflect.Field;
 
 import static com.schemaforge.forge.util.Utility.getColumnType;
@@ -83,6 +84,7 @@ public class SchemaForeMigrationHistoryService {
     }
 
 
+    @Transactional
     public SchemaForgeMigrationHistoryModel checkMigrationExists(String migration){
         return schemaForeMigrationHistoryRepository.findByMigration(migration);
     }

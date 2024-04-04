@@ -29,6 +29,7 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class MigrationClassReader {
@@ -81,17 +82,10 @@ public class MigrationClassReader {
                 Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
                     @Override
                     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-
-                        boolean continueWalking = true;
                         if (file.toString().endsWith(".java")) {
-                            continueWalking =  compileAndLoadMigration(file, migrationClasses);
+                            compileAndLoadMigration(file, migrationClasses);
                         }
-
-                        if(continueWalking) {
-                            return FileVisitResult.CONTINUE;
-                        }else {
-                            return FileVisitResult.TERMINATE;
-                        }
+                        return FileVisitResult.CONTINUE;
                     }
                 });
             }
@@ -100,14 +94,15 @@ public class MigrationClassReader {
             e.printStackTrace();
         }
 
-        System.out.println("Migration Class size >>>>>>>>>>>>>>>>>>>>>>>>>>>"  + migrationClasses.size());
+        log.info("Migration Class size >>>>>>>>>>>>>>>>>>>>>>>>>>>"  + migrationClasses.size());
 
         return migrationClasses;
     }
 
 
+
     @Transactional
-    public boolean compileAndLoadMigration(Path javaFile, List<MigrationContainer> migrationClasses) throws IOException {
+    public void compileAndLoadMigration(Path javaFile, List<MigrationContainer> migrationClasses) throws IOException {
 
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         int compilationResult = compiler.run(null, null, null, javaFile.toFile().getAbsolutePath());
@@ -117,19 +112,12 @@ public class MigrationClassReader {
 
             log.info("Migration Class >>>>>>>>>>>>>> " + className);
 
-            System.out.println("Migration Command " + schemaForgeClientProperties.getCommand() + " " + schemaForgeClientProperties.getValue() );
+            log.info("Migration Command " + schemaForgeClientProperties.getCommand() + " " + schemaForgeClientProperties.getValue() );
 
             try {
 
-                // Get the current application context
-                ApplicationContext context = getApplicationContext();
 
                 Class<?> migrationClass = Class.forName("forge.database.migrations."+className.trim());
-
-                // Register the bean with the current application context
-              //  registerBean((ConfigurableApplicationContext) context, className, migrationClass);
-
-
 
 
                 if (Migration.class.isAssignableFrom(migrationClass)) {
@@ -143,47 +131,73 @@ public class MigrationClassReader {
 
                     SchemaForgeMigrationHistoryModel schemaForgeMigrationHistoryModel = schemaForeMigrationHistoryService.checkMigrationExists(migrationClassName);
 
-                    System.out.println("IS revert migration" + schemaForgeClientProperties.getCommand().trim().equalsIgnoreCase(SchemaForgeConstants.REVERT));
-                    System.out.println("Migration Class name " + migrationClassName);
 
-                    System.out.println("IS migrating command >>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + schemaForgeClientProperties.getValue().trim().equalsIgnoreCase(SchemaForgeCommandValue.ALL));
+                    boolean checkMigrationAlreadyMigrated = false;
+                    if(schemaForgeMigrationHistoryModel != null) {
+                        log.info("Migration " + schemaForgeMigrationHistoryModel.getMigration() + " Already Migrated ");
+                        if(!schemaForgeClientProperties.getValue().trim().equalsIgnoreCase(SchemaForgeConstants.ALL.trim())) {
+                            String migrationName = schemaForgeClientProperties.getValue().trim() + SchemaForgeConstants.JAVA_EXTENSION.trim();
+                            String migrationFromDatabase = schemaForgeMigrationHistoryModel.getMigration().trim();
+                            log.info("Migration Name " + migrationName);
+                            log.info("Migration from Database " + migrationFromDatabase);
+                            boolean alreadyMigrated = migrationName.equalsIgnoreCase(migrationFromDatabase);
+
+                            log.info("Already Migrated " + alreadyMigrated);
+                            checkMigrationAlreadyMigrated = alreadyMigrated;
+                        }else {
+                            String migrationFromDatabase = schemaForgeMigrationHistoryModel.getMigration().trim();
+                            checkMigrationAlreadyMigrated = migrationClassName.equalsIgnoreCase(migrationFromDatabase);
+                        }
+
+                    }
+
+
+                    log.info("Is revert migration " + schemaForgeClientProperties.getCommand().trim().equalsIgnoreCase(SchemaForgeConstants.REVERT));
+                    log.info("IS migrate command " + schemaForgeClientProperties.getCommand().trim().equalsIgnoreCase(SchemaForgeConstants.MIGRATE));
+
+                    log.info("Migration Class name " + migrationClassName);
+
 
 
                     if(schemaForgeClientProperties.getCommand().trim().equalsIgnoreCase(SchemaForgeConstants.REVERT)){
-                        if(schemaForgeMigrationHistoryModel != null){
 
                             if(schemaForgeClientProperties.getValue().trim().equals(SchemaForgeCommandValue.ALL)){
-                                migrationClasses.add(migrationContainer);
-                                return true;
+                                if(schemaForgeMigrationHistoryModel != null) {
+                                    if(schemaForgeMigrationHistoryModel.getMigration().trim().equalsIgnoreCase(migrationClassName)) {
+                                        migrationClasses.add(migrationContainer);
+                                    }
+                                }
                             } else if((schemaForgeClientProperties.getValue().trim()+ SchemaForgeConstants.JAVA_EXTENSION.trim()).equalsIgnoreCase(migrationClassName.trim())){
-                                if (schemaForgeMigrationHistoryModel.getMigration().equals(migrationClassName)) {
-                                    migrationClasses.add(migrationContainer);
-                                    return false;
+
+                                if(schemaForgeMigrationHistoryModel != null) {
+                                    if (schemaForgeMigrationHistoryModel.getMigration().equals(schemaForgeClientProperties.getValue().trim()+ SchemaForgeConstants.JAVA_EXTENSION.trim())) {
+                                        migrationClasses.add(migrationContainer);
+                                    }
                                 }
                             }
 
-                        }else {
-                            try {
-                                throw new MigrationDoesNotExistException();
-                            } catch (MigrationDoesNotExistException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
+
                     }else if(schemaForgeClientProperties.getCommand().trim().equals(SchemaForgeConstants.MIGRATE)){
 
                         if(schemaForgeClientProperties.getValue().trim().equalsIgnoreCase(SchemaForgeCommandValue.ALL)) {
-                            migrationClasses.add(migrationContainer);
-                            return true;
+                            log.info("All already migrated "  + checkMigrationAlreadyMigrated);
+                            if(!checkMigrationAlreadyMigrated) {
+                                migrationClasses.add(migrationContainer);
+                            }
+
                         }else {
 
                             boolean checkMigrationFileToMigrate = (schemaForgeClientProperties.getValue().trim() + SchemaForgeConstants.JAVA_EXTENSION.trim()).equalsIgnoreCase(migrationClassName.trim());
 
-                            log.info("Single Migration >>>>>>>>>>>>>>>>>> " + checkMigrationFileToMigrate);
+                            log.info("Migration match  " + checkMigrationFileToMigrate);
 
-                            if(checkMigrationFileToMigrate){
+                            log.info("Migration migrated " + checkMigrationAlreadyMigrated);
+
+                            if(checkMigrationFileToMigrate && !checkMigrationAlreadyMigrated){
                                 migrationClasses.add(migrationContainer);
-                                return false;
                             }
+
+
                         }
                     }
 
@@ -195,10 +209,9 @@ public class MigrationClassReader {
             }
         } else {
             // Compilation failed
-            System.err.println("Compilation failed for: " + javaFile.toString());
+            System.err.println("Compilation failed for: " + javaFile);
         }
 
-        return false;
     }
 
     public static void registerBean(ConfigurableApplicationContext context, String beanName, Class<?> beanClass) {
