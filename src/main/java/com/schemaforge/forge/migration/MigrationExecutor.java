@@ -1,7 +1,7 @@
 package com.schemaforge.forge.migration;
 
 import com.schemaforge.forge.config.SchemaForgeClientProperties;
-import com.schemaforge.forge.config.SchemaForgeCommands;
+import com.schemaforge.forge.config.SchemaForgeConstants;
 import com.schemaforge.forge.database.DatabaseConnection;
 import com.schemaforge.forge.model.SchemaForgeMigrationHistoryModel;
 import com.schemaforge.forge.service.SchemaForeMigrationHistoryService;
@@ -49,7 +49,7 @@ public class MigrationExecutor {
 
             SchemaForgeMigrationHistoryModel schemaForgeMigrationHistory = schemaForeMigrationHistoryService.checkMigrationExists(schemaForgeMigrationHistoryModel);
 
-            if(schemaForgeClientProperties.getCommand().equals(SchemaForgeCommands.MIGRATE)){
+            if(schemaForgeClientProperties.getCommand().equals(SchemaForgeConstants.MIGRATE)){
 
                 boolean executeQuery = true;
                 if(schemaForgeMigrationHistory != null) {
@@ -64,7 +64,7 @@ public class MigrationExecutor {
                 }
 
 
-            }else if(schemaForgeClientProperties.getCommand().equals(SchemaForgeCommands.REVERT)){
+            }else if(schemaForgeClientProperties.getCommand().equals(SchemaForgeConstants.REVERT)){
 
                 databaseConnection.database().execute(query);
 

@@ -1,13 +1,15 @@
 package com.schemaforge.forge.migration;
 
 
-import com.schemaforge.forge.config.SchemaForgeAnonymous;
+
 import com.schemaforge.forge.config.SchemaForgeClientProperties;
 import com.schemaforge.forge.config.SchemaForgeCommandValue;
-import com.schemaforge.forge.config.SchemaForgeCommands;
+import com.schemaforge.forge.config.SchemaForgeConstants;
 import com.schemaforge.forge.exception.MigrationDoesNotExistException;
 import com.schemaforge.forge.model.SchemaForgeMigrationHistoryModel;
 import com.schemaforge.forge.service.SchemaForeMigrationHistoryService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -30,6 +32,10 @@ import java.util.List;
 
 @Component
 public class MigrationClassReader {
+
+    private static Logger log = LoggerFactory.getLogger(MigrationClassReader.class);
+
+
 
     private final SchemaForgeClientProperties schemaForgeClientProperties;
 
@@ -109,6 +115,8 @@ public class MigrationClassReader {
         if (compilationResult == 0) {
             String className = getClassName(javaFile);
 
+            log.info("Migration Class >>>>>>>>>>>>>> " + className);
+
             System.out.println("Migration Command " + schemaForgeClientProperties.getCommand() + " " + schemaForgeClientProperties.getValue() );
 
             try {
@@ -121,6 +129,9 @@ public class MigrationClassReader {
                 // Register the bean with the current application context
               //  registerBean((ConfigurableApplicationContext) context, className, migrationClass);
 
+
+
+
                 if (Migration.class.isAssignableFrom(migrationClass)) {
                     Migration migrationInstance = (Migration) migrationClass.newInstance();
 
@@ -128,23 +139,23 @@ public class MigrationClassReader {
 
                     MigrationContainer migrationContainer = new MigrationContainer(migrationInstance,migration);
 
-                    String migrationClassName = migration + SchemaForgeAnonymous.JAVA_EXTENSION.trim();
+                    String migrationClassName = migration + SchemaForgeConstants.JAVA_EXTENSION.trim();
 
                     SchemaForgeMigrationHistoryModel schemaForgeMigrationHistoryModel = schemaForeMigrationHistoryService.checkMigrationExists(migrationClassName);
 
-                    System.out.println("IS revert migration" + schemaForgeClientProperties.getCommand().trim().equalsIgnoreCase(SchemaForgeCommands.REVERT));
+                    System.out.println("IS revert migration" + schemaForgeClientProperties.getCommand().trim().equalsIgnoreCase(SchemaForgeConstants.REVERT));
                     System.out.println("Migration Class name " + migrationClassName);
 
                     System.out.println("IS migrating command >>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + schemaForgeClientProperties.getValue().trim().equalsIgnoreCase(SchemaForgeCommandValue.ALL));
 
 
-                    if(schemaForgeClientProperties.getCommand().trim().equalsIgnoreCase(SchemaForgeCommands.REVERT)){
+                    if(schemaForgeClientProperties.getCommand().trim().equalsIgnoreCase(SchemaForgeConstants.REVERT)){
                         if(schemaForgeMigrationHistoryModel != null){
 
                             if(schemaForgeClientProperties.getValue().trim().equals(SchemaForgeCommandValue.ALL)){
                                 migrationClasses.add(migrationContainer);
                                 return true;
-                            } else if((schemaForgeClientProperties.getValue().trim()+SchemaForgeAnonymous.JAVA_EXTENSION.trim()).equals(migrationClassName.trim())){
+                            } else if((schemaForgeClientProperties.getValue().trim()+ SchemaForgeConstants.JAVA_EXTENSION.trim()).equalsIgnoreCase(migrationClassName.trim())){
                                 if (schemaForgeMigrationHistoryModel.getMigration().equals(migrationClassName)) {
                                     migrationClasses.add(migrationContainer);
                                     return false;
@@ -158,14 +169,21 @@ public class MigrationClassReader {
                                 throw new RuntimeException(e);
                             }
                         }
-                    }else if(schemaForgeClientProperties.getCommand().trim().equals(SchemaForgeCommands.MIGRATE)){
+                    }else if(schemaForgeClientProperties.getCommand().trim().equals(SchemaForgeConstants.MIGRATE)){
 
                         if(schemaForgeClientProperties.getValue().trim().equalsIgnoreCase(SchemaForgeCommandValue.ALL)) {
                             migrationClasses.add(migrationContainer);
                             return true;
-                        }else if((schemaForgeClientProperties.getValue().trim()+SchemaForgeAnonymous.JAVA_EXTENSION.trim()).equals(migrationClassName.trim())){
-                            migrationClasses.add(migrationContainer);
-                            return false;
+                        }else {
+
+                            boolean checkMigrationFileToMigrate = (schemaForgeClientProperties.getValue().trim() + SchemaForgeConstants.JAVA_EXTENSION.trim()).equalsIgnoreCase(migrationClassName.trim());
+
+                            log.info("Single Migration >>>>>>>>>>>>>>>>>> " + checkMigrationFileToMigrate);
+
+                            if(checkMigrationFileToMigrate){
+                                migrationClasses.add(migrationContainer);
+                                return false;
+                            }
                         }
                     }
 

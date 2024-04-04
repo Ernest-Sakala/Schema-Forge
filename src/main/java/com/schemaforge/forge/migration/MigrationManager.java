@@ -1,7 +1,7 @@
 package com.schemaforge.forge.migration;
 
 import com.schemaforge.forge.config.SchemaForgeClientProperties;
-import com.schemaforge.forge.config.SchemaForgeCommands;
+import com.schemaforge.forge.config.SchemaForgeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,20 +34,23 @@ public class MigrationManager {
         migrations.addAll(migration);
     }
 
-    public void runMigrations() {
+    public boolean runMigrations() {
 
         log.info("<<<<<<<<<<<<<Running Schema Forge Migrations>>>>>>>>>>>>> : command " + schemaForgeClientProperties.getCommand() + "  value " + schemaForgeClientProperties.getValue());
 
+
+
         for (MigrationContainer migration : migrations) {
 
+
             String query = null;
-            if(schemaForgeClientProperties.getCommand().equals(SchemaForgeCommands.REVERT)){
+            if(schemaForgeClientProperties.getCommand().equals(SchemaForgeConstants.REVERT)){
 
                 query = migration.getMigration().revert();
 
                 log.info("SCHEMA FORGE <<<<<<<<<<<<<<<<<<< Rolling back Migration >>>>>>>>>>>>>>>>> " + migration.getMigrationName() + " " + query);
 
-            }else if(schemaForgeClientProperties.getCommand().equals(SchemaForgeCommands.MIGRATE)) {
+            }else if(schemaForgeClientProperties.getCommand().equals(SchemaForgeConstants.MIGRATE)) {
 
                 log.info("SCHEMA FORGE <<<<<<<<<<<<<<<<<<Schema forge migrating Migration >>>>>>>>>>>>>>>>> " + migration.getMigrationName() + " " + query);
 
@@ -62,6 +65,9 @@ public class MigrationManager {
               }
             }
         }
+
+
+        return true;
     }
 
 
