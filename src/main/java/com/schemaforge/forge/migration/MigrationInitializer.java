@@ -71,26 +71,10 @@ class MigrationInitializer {
         boolean doneRunning = migrationManager.runMigrations();
 
 
-        shutdownApplicationAfterRunningMigrations(doneRunning);
+
     }
 
-    private void shutdownApplicationAfterRunningMigrations(boolean doneRunning) {
-        if(schemaForgeClientProperties.getCommand().equalsIgnoreCase(SchemaForgeConstants.MIGRATE) || schemaForgeClientProperties.getCommand().equalsIgnoreCase(SchemaForgeConstants.REVERT) ) {
-            if (doneRunning) {
 
-                log.info("Finished Running Migrations Schema Forge");
-
-                new Thread(() -> {
-                    try {
-                        Thread.sleep(5000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    ((ConfigurableApplicationContext) context).close();
-                }).start();
-            }
-        }
-    }
 
 
     private void banner() {
