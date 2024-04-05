@@ -1,14 +1,14 @@
 package com.schemaforge.forge.database;
 
 import com.schemaforge.forge.config.SchemaForgeClientProperties;
-import com.schemaforge.forge.schema.Schema;
 import com.schemaforge.forge.schema.MySQLSchema;
 import com.schemaforge.forge.schema.PostgresSQLSchema;
+import com.schemaforge.forge.schema.Schema;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.stereotype.Component;
 import javax.sql.DataSource;
-import java.util.Map;
 
 @Component
 public class DatabaseConnection {
@@ -22,18 +22,19 @@ public class DatabaseConnection {
 
     public DataSource getDataSource() {
 
-        DataSourceBuilder<?> dataSourceBuilder = DataSourceBuilder.create();
+        SingleConnectionDataSource singleConnectionDataSource = new SingleConnectionDataSource();
 
         if(schemaForgeClientProperties.getUrl().contains("mysql")){
-            dataSourceBuilder.driverClassName("com.mysql.cj.jdbc.Driver");
+            singleConnectionDataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
         }else if(schemaForgeClientProperties.getUrl().contains("postgresql")){
-            dataSourceBuilder.driverClassName("org.postgresql.Driver");
+            singleConnectionDataSource.setDriverClassName("org.postgresql.Driver");
         }
 
-        dataSourceBuilder.url(schemaForgeClientProperties.getUrl());
-        dataSourceBuilder.username(schemaForgeClientProperties.getUsername());
-        dataSourceBuilder.password(schemaForgeClientProperties.getPassword());
-        return dataSourceBuilder.build();
+        singleConnectionDataSource.setUrl(schemaForgeClientProperties.getUrl());
+        singleConnectionDataSource.setUsername(schemaForgeClientProperties.getUsername());
+        singleConnectionDataSource.setPassword(schemaForgeClientProperties.getPassword());
+
+        return singleConnectionDataSource;
     }
 
 
