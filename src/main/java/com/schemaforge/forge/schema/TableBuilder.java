@@ -1,12 +1,21 @@
 package com.schemaforge.forge.schema;
 
 
+import com.schemaforge.forge.database.DatabaseConstants;
 import com.schemaforge.forge.database.DatabaseDataTypes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 
 @Component
 public class TableBuilder implements TableSchema {
+
+    private static final Logger log = LoggerFactory.getLogger(SchemaBuilder.class);
+
     protected Map<String, String> columnDefinitions;
 
     private Stack<String> columnNamesStack;
@@ -96,6 +105,27 @@ public class TableBuilder implements TableSchema {
         checkColumnValidity(columnName);
         columnBuilder.addUuidColumn(columnName);
         return this.columnBuilder;
+    }
+
+    @Override
+    public void id() {
+        this.columnBuilder.id();
+    }
+
+    @Override
+    public void id(String columnName) {
+        checkColumnValidity(columnName);
+        this.columnBuilder.id(columnName);
+    }
+
+    /**
+     * @param columnName
+     * @return
+     */
+    @Override
+    public ColumnBuilder addForeignId(String columnName) {
+        checkColumnValidity(columnName);
+        return this.columnBuilder.addForeignId(columnName);
     }
 
     public ColumnBuilder addStringColumn(String columnName, int size) {
@@ -194,11 +224,14 @@ public class TableBuilder implements TableSchema {
     }
 
 
-    public class ColumnBuilder implements ColumnSchema {
-        private Stack<String> columnOrder;
+    public class ColumnBuilder extends ColumnSchema {
+        private final Stack<String> columnOrder;
+
+        private ColumnSchemaBluePrint columnSchemaBluePrint;
 
         public ColumnBuilder() {
             this.columnOrder = new Stack<>();
+            this.getDatabaseType();
         }
 
 
@@ -227,6 +260,65 @@ public class TableBuilder implements TableSchema {
             return this;
         }
 
+
+        public ColumnBuilder constraint(String tableName) {
+
+            // perfoming validation to accept other data types
+            String columnName = columnOrder.isEmpty() ? null : columnOrder.peek();
+            if (columnName == null) {
+                throw new IllegalStateException("No column has been added yet.");
+            }
+
+            String columnDefinition =  " FOREIGN KEY (" + columnDefinitions.get(columnName) +")"
+                    .concat(" REFERENCES ").concat(tableName).concat("(").concat(DatabaseConstants.ID).concat(")");
+
+            columnDefinitions.put(columnName,columnDefinition);
+
+            return this;
+        }
+
+
+        public ColumnBuilder constraint(String tableName, String tablePrimaryKey) {
+
+            // perfoming validation to accept other data types
+            String columnName = columnOrder.isEmpty() ? null : columnOrder.peek();
+            if (columnName == null) {
+                throw new IllegalStateException("No column has been added yet.");
+            }
+
+            String columnDefinition =  " FOREIGN KEY (" + columnDefinitions.get(columnName) +")"
+                    .concat(" REFERENCES ").concat(tableName).concat("(").concat(tablePrimaryKey).concat(")");
+
+            columnDefinitions.put(columnName,columnDefinition);
+
+            return this;
+        }
+
+        public ColumnBuilder onDelete(String cascadeType) {
+
+
+            String columnName = columnOrder.isEmpty() ? null : columnOrder.peek();
+            if (columnName == null) {
+                throw new IllegalStateException("No column has been added yet.");
+            }
+
+            String columnDefinition;
+            if(cascadeType.equalsIgnoreCase("null")) {
+
+              columnDefinition =  columnDefinitions.get(columnName).concat(" ON DELETE SET ").concat(cascadeType);
+
+            }else {
+
+               columnDefinition = columnDefinitions.get(columnName).concat(" ON DELETE ").concat(cascadeType);
+
+            }
+
+            columnDefinitions.put(columnName, columnDefinition);
+
+            return this;
+        }
+
+
         public ColumnBuilder nullable(boolean nullable) {
             String columnName = columnOrder.isEmpty() ? null : columnOrder.peek();
             if (columnName == null) {
@@ -240,13 +332,14 @@ public class TableBuilder implements TableSchema {
         }
 
 
-
-        private void addDoubleColumn(String columnName) {
+        @Override
+        protected void addDoubleColumn(String columnName) {
             columnDefinitions.put(columnName, DatabaseDataTypes.DECIMAL);
             columnOrder.push(columnName);
         }
 
-        private void addStringColumn(String columnName) {
+        @Override
+        protected void addStringColumn(String columnName) {
             columnDefinitions.put(columnName, DatabaseDataTypes.VARCHAR);
             columnOrder.push(columnName);
         }
@@ -318,7 +411,7 @@ public class TableBuilder implements TableSchema {
          * @param columnName
          */
         @Override
-        public void addTextColumn(String columnName) {
+        protected void addTextColumn(String columnName) {
             columnDefinitions.put(columnName, DatabaseDataTypes.TEXT);
             columnOrder.push(columnName);
         }
@@ -327,7 +420,7 @@ public class TableBuilder implements TableSchema {
          * @param columnName
          */
         @Override
-        public void addFloatColumn(String columnName) {
+        protected void addFloatColumn(String columnName) {
             columnDefinitions.put(columnName, DatabaseDataTypes.FLOAT);
             columnOrder.push(columnName);
         }
@@ -336,7 +429,7 @@ public class TableBuilder implements TableSchema {
          * @param columnName
          */
         @Override
-        public void addEnumColumn(String columnName,  String [] enumNames) {
+        protected void addEnumColumn(String columnName,  String [] enumNames) {
 
             StringBuilder name = new StringBuilder(DatabaseDataTypes.ENUM + "(");
 
@@ -358,7 +451,7 @@ public class TableBuilder implements TableSchema {
          * @param columnName
          */
         @Override
-        public void addJsonColumn(String columnName) {
+        protected void addJsonColumn(String columnName) {
             columnDefinitions.put(columnName, DatabaseDataTypes.JSON);
             columnOrder.push(columnName);
         }
@@ -367,7 +460,7 @@ public class TableBuilder implements TableSchema {
          * @param columnName
          */
         @Override
-        public void addJsonbColumn(String columnName) {
+        protected void addJsonbColumn(String columnName) {
             columnDefinitions.put(columnName, DatabaseDataTypes.JSONB);
             columnOrder.push(columnName);
         }
@@ -376,9 +469,82 @@ public class TableBuilder implements TableSchema {
          * @param columnName
          */
         @Override
-        public void addUuidColumn(String columnName) {
+        protected void addUuidColumn(String columnName) {
             columnDefinitions.put(columnName, DatabaseDataTypes.UUID);
             columnOrder.push(columnName);
+        }
+
+
+        private ColumnSchemaBluePrint getDatabaseType() {
+            try {
+                StringBuilder jsonContent = new StringBuilder();
+
+                FileReader reader = new FileReader("src/main/resources/forge.json");
+
+                int character;
+                while ((character = reader.read()) != -1) {
+                    jsonContent.append((char) character);
+                }
+                reader.close();
+
+                String jsonString = jsonContent.toString();
+
+                String database = extractValue(jsonString, "database");
+
+                if(database.isEmpty()){
+                    throw new IllegalArgumentException("Schema forge database type should not be empty");
+                }
+
+
+                if(database.equalsIgnoreCase("MYSQL")){
+                    log.info("MYSQL SCHEMA TO BE USED");
+                    columnSchemaBluePrint = new ColumnSchemaBluePrintMySQL();
+                }else if(database.equalsIgnoreCase("POSTGRESQL")){
+                    log.info("POSTGRESQL SCHEMA TO BE USED");
+                    columnSchemaBluePrint = new ColumnSchemaBluePrintPostgresSQL();
+                }
+
+                return columnSchemaBluePrint;
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+
+        private String extractValue(String jsonString, String key) {
+            int startIndex = jsonString.indexOf("\"" + key + "\"") + key.length() + 4;
+            int endIndex = jsonString.indexOf("\"", startIndex);
+            return jsonString.substring(startIndex, endIndex);
+        }
+
+
+        @Override
+        protected void id() {
+            this.id("id");
+        }
+
+        @Override
+        protected void id(String name) {
+            String columnDefinition = this.columnSchemaBluePrint.idDefinition();
+            columnDefinitions.put(name, columnDefinition);
+            columnOrder.push(name);
+        }
+
+        /**
+         * @param columnName
+         */
+        @Override
+        protected ColumnBuilder addForeignId(String columnName) {
+            if(columnName.equalsIgnoreCase("id")){
+                throw new IllegalArgumentException("Foreign key cannot be id");
+            }
+
+            columnDefinitions.put(columnName,DatabaseDataTypes.BIGINT);
+
+            columnDefinitions.put(DatabaseConstants.CONSTRAINT+" fk_"+ columnName, columnName);
+            columnOrder.push(DatabaseConstants.CONSTRAINT+" fk_" + columnName);
+            return this;
         }
     }
 

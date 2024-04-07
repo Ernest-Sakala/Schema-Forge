@@ -17,4 +17,10 @@ public interface TableSchema {
     TableBuilder.ColumnBuilder addJsonbColumn(String columnName);
 
     TableBuilder.ColumnBuilder addUuidColumn(String columnName);
+
+    void id();
+
+    void id(String columnName);
+
+    TableBuilder.ColumnBuilder addForeignId(String columnName);
 }
