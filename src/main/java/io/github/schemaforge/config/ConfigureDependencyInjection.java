@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 @ComponentScan(
         {
             "io.github.schemaforge.database",
+            "io.github.schemaforge.seed",
             "io.github.schemaforge.migration",
             "io.github.schemaforge.util",
             "io.github.schemaforge.service",
@@ -16,6 +17,7 @@ import org.springframework.context.annotation.Configuration;
             "io.github.schemaforge.schema",
             "io.github.schemaforge.config",
             "forge.database.migrations",
+            "forge.database.seeds",
             "classpath:forge.database.migrations"
         })
 public class ConfigureDependencyInjection {
