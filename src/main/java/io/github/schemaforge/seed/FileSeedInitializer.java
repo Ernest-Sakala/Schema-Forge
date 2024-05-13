@@ -2,44 +2,37 @@ package io.github.schemaforge.seed;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.util.List;
 
 @Component
-class SeedInitializer<E> {
+public class FileSeedInitializer<T> {
 
-    private static final Logger log = LoggerFactory.getLogger(SeedInitializer.class);
+    private static final Logger log = LoggerFactory.getLogger(FileSeedInitializer.class);
 
-    private final SeedClassReader<E> seedClassReader;
-
-
-    private final SeedManager<E> seedManager;
+    private final FileSeederClassReader<T> jsonSeederClassReader;
 
 
-    @Autowired
-    public SeedInitializer(SeedClassReader<E> seedClassReader, SeedManager<E> seedManager) {
-        this.seedClassReader = seedClassReader;
-        this.seedManager = seedManager;
+    private final FileSeedManager<T> jsonSeedManager;
+
+    public FileSeedInitializer(FileSeederClassReader<T> jsonSeederClassReader, FileSeedManager<T> jsonSeedManager) {
+        this.jsonSeederClassReader = jsonSeederClassReader;
+        this.jsonSeedManager = jsonSeedManager;
     }
-
 
 
     @PostConstruct
     public void migrate() {
         banner();
 
-       List<SeedContainer<E>> seedContainerList = seedClassReader.getSeedClasses();
+        List<FileDataSeeder<T>> dataSeeders = jsonSeederClassReader.getSeedClasses();
 
-       seedManager.addSeed(seedContainerList);
+        jsonSeedManager.addSeed(dataSeeders);
 
-       seedManager.runSeeds();
+        jsonSeedManager.runSeeds();
 
     }
-
-
-
 
 
     private void banner() {
@@ -50,11 +43,7 @@ class SeedInitializer<E> {
         System.out.println("`-----'  `---'`--' `--' `----'`--`--`--' `--`--'    `--'    `---' `--'   .`-  /  `----' ");
         System.out.println("Developed By Ernest Sakala. Inspired By Laravel Migrations                                                                                       ");
         System.out.println(" ");
-        System.out.println("Running Seeds ");
+        System.out.println("Running Json Seeds ");
     }
 
-
-
-
 }
-

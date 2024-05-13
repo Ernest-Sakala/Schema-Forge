@@ -62,6 +62,7 @@ class MigrationInitializer {
                     "\n"+
                     "}");
         } catch (IOException e) {
+
             throw new RuntimeException(e);
         }
 

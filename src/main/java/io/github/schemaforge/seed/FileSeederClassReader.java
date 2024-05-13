@@ -1,9 +1,9 @@
 package io.github.schemaforge.seed;
 
-import io.github.schemaforge.config.SchemaForgeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 import java.io.File;
@@ -16,15 +16,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class SeedClassReader<E> {
+public class FileSeederClassReader<T> {
 
-    private static final Logger log = LoggerFactory.getLogger(SeedClassReader.class);
+    private static final Logger log = LoggerFactory.getLogger(FileSeederClassReader.class);
 
 
-    public List<SeedContainer<E>> getSeedClasses() {
+    public List<FileDataSeeder<T>> getSeedClasses() {
 
-        List<SeedContainer<E>> seedContainer = new ArrayList<>();
-
+        List<FileDataSeeder<T>> jsonDataSeeders = new ArrayList<>();
 
         try {
 
@@ -41,7 +40,7 @@ public class SeedClassReader<E> {
                     @Override
                     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                         if (file.toString().endsWith(".java")) {
-                            compileAndLoadMigration(file, seedContainer);
+                            compileAndLoadMigration(file, jsonDataSeeders);
                         }
                         return FileVisitResult.CONTINUE;
                     }
@@ -52,15 +51,16 @@ public class SeedClassReader<E> {
             e.printStackTrace();
         }
 
-        log.info("Seed Class size >>>>>>>>>>>>>>>>>>>>>>>>>>>{}", seedContainer.size());
 
-        return seedContainer;
+        log.info("Json Seed Class size >>>>>>>>>>>>>>>>>>>>>>>>>>>{}", jsonDataSeeders.size());
+
+        return jsonDataSeeders;
     }
 
 
 
 
-    public void compileAndLoadMigration(Path javaFile, List<SeedContainer<E>> migrationClasses) throws IOException {
+    public void compileAndLoadMigration(Path javaFile,  List<FileDataSeeder<T>> jsonDataSeeders) throws IOException {
 
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         int compilationResult = compiler.run(null, null, null, javaFile.toFile().getAbsolutePath());
@@ -77,20 +77,13 @@ public class SeedClassReader<E> {
                 Class<?> seederClass = Class.forName("forge.database.seeds."+className.trim());
 
 
-                if (Seeder.class.isAssignableFrom(seederClass)) {
+                if(FileDataSeeder.class.isAssignableFrom(seederClass)) {
 
-                    Seeder<E> migrationInstance = (Seeder<E>) seederClass.newInstance();
-
-                    String migration = className.trim();
-
-                    SeedContainer<E> migrationContainer = new SeedContainer<>(migrationInstance,migration);
-
-                    String migrationClassName = migration + SchemaForgeConstants.JAVA_EXTENSION.trim();
-
-                    migrationClasses.add(migrationContainer);
-
+                    FileDataSeeder<T> jsonDataSeeder = (FileDataSeeder<T>) seederClass.newInstance();
+                    jsonDataSeeders.add(jsonDataSeeder);
 
                 }
+
             } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
                 // Handle exceptions as needed
                 log.error(e.getMessage());

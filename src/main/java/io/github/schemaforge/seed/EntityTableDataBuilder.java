@@ -2,7 +2,7 @@ package io.github.schemaforge.seed;
 
 import java.util.function.Consumer;
 
-public class TableDataBuilder<E> {
+public class EntityTableDataBuilder<E> {
 
     public DataContainer<E> insertData(String tableName, Consumer<DataBuilder<E>> dataBuilderConsumer) {
 

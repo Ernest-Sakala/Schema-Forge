@@ -1,23 +1,23 @@
 package io.github.schemaforge.seed;
 
-public class SeedContainer<E> {
+public class EntitySeedContainer<E> {
 
-    private Seeder<E> seeder;
+    private EntityDataSeeder<E> seeder;
     private String seederName;
 
-    public SeedContainer() {
+    public EntitySeedContainer() {
     }
 
-    public SeedContainer(Seeder<E> seeder, String seederName) {
+    public EntitySeedContainer(EntityDataSeeder<E> seeder, String seederName) {
         this.seeder = seeder;
         this.seederName = seederName;
     }
 
-    public Seeder<E> getSeeder() {
+    public EntityDataSeeder<E> getSeeder() {
         return seeder;
     }
 
-    public void setSeeder(Seeder<E> seeder) {
+    public void setSeeder(EntityDataSeeder<E> seeder) {
         this.seeder = seeder;
     }
 

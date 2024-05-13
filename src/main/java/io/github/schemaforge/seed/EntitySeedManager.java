@@ -1,6 +1,5 @@
 package io.github.schemaforge.seed;
 
-import io.github.schemaforge.migration.MigrationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,28 +10,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class SeedManager<E> {
+public class EntitySeedManager<E> {
 
 
-    private static final Logger log = LoggerFactory.getLogger(SeedManager.class);
+    private static final Logger log = LoggerFactory.getLogger(EntitySeedManager.class);
 
-    private final List<SeedContainer<E>> seedContainerList = new ArrayList<>();
+    private final List<EntitySeedContainer<E>> seedContainerList = new ArrayList<>();
 
     private final SeedExecutor seedExecutor;
 
     @Autowired
-    public SeedManager(SeedExecutor seedExecutor) {
+    public EntitySeedManager(SeedExecutor seedExecutor) {
         this.seedExecutor = seedExecutor;
     }
 
-    public void addSeed(List<SeedContainer<E>> seedContainerListData) {
+    public void addSeed(List<EntitySeedContainer<E>> seedContainerListData) {
         seedContainerList.addAll(seedContainerListData);
     }
 
     public void runSeeds() {
 
 
-        for(SeedContainer<E> seedContainer : seedContainerList) {
+        for(EntitySeedContainer<E> seedContainer : seedContainerList) {
             DataContainer<E> data = seedContainer.getSeeder().seed();
 
 

@@ -12,7 +12,7 @@
 
 	<groupId>io.github.ernest-sakala</groupId>
 	<artifactId>schemaforge</artifactId>
-	<version>0.0.2-BETA</version>
+	<version>0.0.3-BETA</version>
 	<packaging>jar</packaging>
 	<name>schema-forge</name>
 	<description>Spring boot Database Migration Library</description>
@@ -116,6 +116,35 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-jdbc</artifactId>
 		</dependency>
+
+
+<!--		<dependency>-->
+<!--			<groupId>org.apache.poi</groupId>-->
+<!--			<artifactId>poi</artifactId>-->
+<!--			<version>4.1.2</version>-->
+<!--		</dependency>-->
+
+<!--		<dependency>-->
+<!--			<groupId>org.apache.poi</groupId>-->
+<!--			<artifactId>poi-ooxml-schemas</artifactId>-->
+<!--			<version>4.1.2</version>-->
+<!--		</dependency>-->
+
+<!--		<dependency>-->
+<!--			<groupId>org.apache.poi</groupId>-->
+<!--			<artifactId>poi-ooxml</artifactId>-->
+<!--			<version>4.1.2</version>-->
+<!--		</dependency>-->
+
+
+
+<!--		<dependency>-->
+<!--			<groupId>org.dhatim</groupId>-->
+<!--			<artifactId>fastexcel-reader</artifactId>-->
+<!--			<version>0.18.0</version>-->
+<!--		</dependency>-->
+
+
 
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>

@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import javax.transaction.Transactional;
+import java.util.Scanner;
 
 @Component
 public class SeedExecutor {
@@ -27,7 +28,20 @@ public class SeedExecutor {
             databaseConnection.database().execute(query);
 
         }catch (Exception exception){
-            exception.printStackTrace();
+            log.info("An error occurred while executing the query: {}", query, exception);
+        }
+    }
+
+
+    @Transactional
+    public void execute(String query){
+
+        try{
+
+            databaseConnection.database().execute(query);
+
+        }catch (Exception exception){
+            log.info("An error occurred while executing the query: {}", query, exception);
         }
     }
 
